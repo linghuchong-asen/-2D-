@@ -1,19 +1,73 @@
+/*
+ * @Description:http基于axios封装；没有在封装过程中使用try catch，因为一旦使用catch语句http函数返回类型就会编程unknown，在调用http函数时注意使用try catch语句
+ * @Version: 1.0
+ * @Author: yangsen
+ * @Date: 2022-09-01 16:40:01
+ * @LastEditors: yangsen
+ * @LastEditTime: 2022-09-07 16:10:53
+ */
 import axios from "axios";
-import type { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
+import type { AxiosRequestConfig } from "axios";
 
-axios.interceptors.request.use(
-  (config: AxiosRequestConfig) => {
-    const token: string | null = window.sessionStorage.getItem("token");
-    const headers: AxiosRequestHeaders | undefined = config.headers;
-    if (token) {
-      if (headers) headers.Authorization = token;
-    }
-    // 必须return出去，否则配置不成功
-    return config;
-  },
-  (erro) => {
-    // 错误情况的处理
-    console.log(erro);
+export const http = async <T>(
+  url: string,
+  { params, ...props }: AxiosRequestConfig = {} // 赋一个初始值的方式，可以实现可选属性的效果
+) => {
+  props.headers = {};
+  const token: string | null = window.sessionStorage.getItem("token");
+  if (token) {
+    props.headers.Authorization = "Bearer" + token;
   }
-);
-export { axios };
+  // 默认get请求，非get请求要传method值
+  const config: AxiosRequestConfig = {
+    method: "get",
+    baseURL: "/bapi",
+    ...props,
+  };
+  const doHttp = axios.create(config);
+
+  // 响应拦截
+  doHttp.interceptors.response.use(async (response) => {
+    console.log(response);
+    // token过期，利用refresh刷新token
+    if (response.status === 401) {
+      const refresh = window.sessionStorage.getItem("refresh");
+
+      const newToken = await doHttp({
+        method: "post",
+        url: "/bapi/API/V0.1/Account/token/refresh/",
+        data: {
+          refresh,
+        },
+      });
+      const access: string = newToken.data.access;
+      window.sessionStorage.setItem("Authorization", access);
+      /* 重新发起之前失败的请求 */
+      // response.config是之前请求的请求配置
+      const config = response.config;
+      // 重新配置token
+      if (config.headers !== undefined) config.headers.Authorization = access;
+      // config.url已经带上了baseurl，所以这里要去除掉baseurl
+      config.baseURL = "";
+
+      const dataT = await doHttp(config);
+      const { data, status }: { data: T; status: number } = dataT;
+      return { data, status };
+    }
+    // 非401情况，直接返回（在有if的情况，不要忘记其他情况的return）
+    return response;
+  });
+
+  if (config.method !== "get" && config.method !== "delete") {
+    // post put请求
+    const dataT = await doHttp({ url, data: params });
+    const { data, status }: { data: T; status: number } = dataT;
+    return { data, status };
+  } else {
+    // get delete请求
+    const p = params ? { url, params } : { url };
+    const dataT = await doHttp(p);
+    const { data, status }: { data: T; status: number } = dataT;
+    return { data, status };
+  }
+};

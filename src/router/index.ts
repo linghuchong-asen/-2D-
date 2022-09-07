@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import LoginPage from "@/components/LoginPage.vue";
+import LoginPage from "@/components/login/LoginPage.vue";
 import LayoutIndex from "@/views/layout/LayoutIndex.vue";
 
 const router = createRouter({

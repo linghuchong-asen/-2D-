@@ -1,5 +1,5 @@
 {
-  "name": "-2d",
+  "name": "perimeter-web2d",
   "version": "1.0",
   "scripts": {
     "dev": "vite",
