@@ -4,7 +4,7 @@
  * @Author: yangsen
  * @Date: 2022-09-01 13:40:51
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-07 16:10:19
+ * @LastEditTime: 2022-09-07 17:26:59
 -->
 <template>
   <el-row justify="center" style="height: 100%; align-content: center">
@@ -38,12 +38,10 @@
 import { reactive, ref } from "vue";
 import { getPngUrl } from "@/utils/index";
 import { loginHttp } from "./server";
+import { useRouter } from "vue-router";
 import { ElMessage, type FormInstance, type FormRules } from "element-plus";
 
-/* 验证一下添加全局方法
-  import { getCurrentInstance } from "vue";
-  const proxy =getCurrentInstance();
-  proxy.$http(); */
+const router = useRouter();
 /* form表单的引用;获取到的是el-form组件实例 */
 const loginFormInstance = ref<FormInstance>();
 
@@ -92,6 +90,8 @@ const submitForm = () => {
           const { access, refresh } = data;
           sessionStorage.setItem("Authorization", access);
           sessionStorage.setItem("refresh", refresh);
+          // 登录成功，路由跳转
+          router.push({ name: "home" });
         } else {
           ElMessage({
             type: "error",

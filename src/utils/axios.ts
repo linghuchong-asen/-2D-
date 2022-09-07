@@ -4,7 +4,7 @@
  * @Author: yangsen
  * @Date: 2022-09-01 16:40:01
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-07 16:10:53
+ * @LastEditTime: 2022-09-07 16:35:20
  */
 import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
@@ -14,7 +14,7 @@ export const http = async <T>(
   { params, ...props }: AxiosRequestConfig = {} // 赋一个初始值的方式，可以实现可选属性的效果
 ) => {
   props.headers = {};
-  const token: string | null = window.sessionStorage.getItem("token");
+  const token: string | null = window.sessionStorage.getItem("Authorization");
   if (token) {
     props.headers.Authorization = "Bearer" + token;
   }
