@@ -4,14 +4,14 @@
       <HeaderPage></HeaderPage>
     </div>
     <div class="body">
-      <el-row class="map">
-        <el-col></el-col>
-        <el-col></el-col>
-      </el-row>
-      <el-row class="warn">
-        <el-col></el-col>
-        <el-col></el-col>
-      </el-row>
+      <div class="map">
+        <div class="mapLeft"></div>
+        <div class="mapRight"></div>
+      </div>
+      <div class="warn">
+        <div class="warnLeft"></div>
+        <div class="warnRight"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -20,21 +20,48 @@ import HeaderPage from "./components/HeaderPage.vue";
 </script>
 <style lang="less" scoped>
 .box {
-  display: flex;
-  flex-direction: column;
+  width: 100vw;
   height: 100%;
   .header {
-    flex-grow: 7;
+    height: 4vh;
   }
   .body {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 209;
+    height: 96vh;
     .map {
-      flex-grow: 156;
+      width: 100vw;
+      height: 74%;
+
+      .mapLeft {
+        width: 52vw;
+        height: 100%;
+        float: left;
+        background-color: palegreen;
+      }
+      .mapRight {
+        width: 48vw;
+        height: 100%;
+        float: left;
+        background-color: beige;
+      }
     }
     .warn {
-      flex-grow: 53;
+      width: 100vw;
+      height: 26%;
+
+      .warnLeft {
+        width: 52vw;
+        height: 100%;
+        float: left;
+
+        background-color: brown;
+      }
+      .warnRight {
+        width: 48vw;
+        height: 100%;
+        float: left;
+
+        background-color: cadetblue;
+      }
     }
   }
 }

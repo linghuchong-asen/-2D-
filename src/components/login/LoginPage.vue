@@ -4,7 +4,7 @@
  * @Author: yangsen
  * @Date: 2022-09-01 13:40:51
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-07 17:26:59
+ * @LastEditTime: 2022-09-08 09:03:44
 -->
 <template>
   <el-row justify="center" style="height: 100%; align-content: center">
@@ -92,6 +92,11 @@ const submitForm = () => {
           sessionStorage.setItem("refresh", refresh);
           // 登录成功，路由跳转
           router.push({ name: "home" });
+        } else if (status === 401) {
+          ElMessage({
+            type: "error",
+            message: "用户名或密码错误",
+          });
         } else {
           ElMessage({
             type: "error",
