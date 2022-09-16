@@ -4,20 +4,19 @@
  * @Author: yangsen
  * @Date: 2022-09-01 16:40:01
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-08 09:03:57
+ * @LastEditTime: 2022-09-15 14:12:23
  */
 import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
-import { ElMessage } from "element-plus";
 
 export const http = async <T>(
   url: string,
   { params, ...props }: AxiosRequestConfig = {} // 赋一个初始值的方式，可以实现可选属性的效果
 ) => {
   props.headers = {};
-  const token: string | null = window.sessionStorage.getItem("Authorization");
+  const token: string | null = window.localStorage.getItem("Authorization");
   if (token) {
-    props.headers.Authorization = "Bearer" + token;
+    props.headers.Authorization = "Bearer " + token;
   }
   // 默认get请求，非get请求要传method值
   const config: AxiosRequestConfig = {
@@ -38,7 +37,7 @@ export const http = async <T>(
 
       // token过期，利用refresh刷新token
       if (error.response.status === 403) {
-        const refresh = window.sessionStorage.getItem("refresh");
+        const refresh = window.localStorage.getItem("refresh");
 
         const newToken = await doHttp({
           method: "post",
@@ -48,7 +47,7 @@ export const http = async <T>(
           },
         });
         const access: string = newToken.data.access;
-        window.sessionStorage.setItem("Authorization", access);
+        window.localStorage.setItem("Authorization", access);
         /* 重新发起之前失败的请求 */
         // response.config是之前请求的请求配置
         const config = error.response.config;

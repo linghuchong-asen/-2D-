@@ -1,15 +1,14 @@
-
-
 * {
   padding: 0;
   margin: 0;
 }
-body,html {
-  height: 100%
+body,
+html {
+  height: 100%;
 }
 #app {
   width: 100%;
-  height: 100%
+  height: 100%;
 }
 
 a,
@@ -25,8 +24,266 @@ a,
   }
 }
 
-
-
 html {
- font-size:  16px
+  font-size: 16px;
+}
+li {
+  list-style-type: none;
+}
+.subMenu .el-menu--popup {
+  min-width: 80px;
+}
+.subMenu .el-menu-item {
+  font-size: 0.875rem;
+}
+
+/* ------------------视屏墙------------------------- */
+.wall-container *,
+.wall-container ::after,
+.wall-container ::before {
+  box-sizing: border-box;
+}
+.wall-container {
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+}
+/* .wall-container {
+  height: 100vh;
+} */
+.wall-container .grid-wrapper {
+  height: 100%;
+  margin: 0px;
+  background: transparent;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.wall-container .container-fluid {
+  width: 100%;
+  height: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  overflow: hidden;
+}
+
+.wall-container .grid-wrapper .player {
+  padding: 0px;
+  position: relative;
+  border: 2px solid #000;
+  background-image: url(./img/blue.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.wall-container .grid-wrapper .player.select {
+  border: 2px solid rgb(3, 253, 3);
+}
+
+.wall-container .grid-wrapper .player.grid-9 {
+  width: 33.33%;
+  height: 33.33%;
+}
+
+.wall-container .grid-wrapper .player.grid-6 {
+  width: 50%;
+  height: 33.34%;
+}
+
+.wall-container .grid-wrapper .player:not(.empty) {
+  background: #343a40;
+}
+
+.wall-container .grid-wrapper .player video.video-class {
+  background: #000;
+  object-fit: fill;
+}
+
+.grid-wrapper .player video {
+  height: 100%;
+  width: 100%;
+}
+
+.wall-container .content-wrapper {
+  height: 100%;
+  background: transparent;
+}
+
+.wall-container .grid-wrapper .player video.video-class.empty {
+  background: transparent;
+}
+
+.wall-container .player .close {
+  width: 100%;
+  height: 100%;
+}
+
+.wall-container .close-stream-btn {
+  position: absolute;
+  right: 0.5vw;
+  top: 0.5vw;
+  height: 0.5vw;
+  width: 0.5vw;
+  color: white;
+  cursor: pointer;
+  display: none;
+  filter: drop-shadow(2px 4px 6px black);
+}
+
+.wall-container .player .loader {
+  position: absolute;
+  width: 100px;
+  height: 70px;
+  top: calc(50% - 35px);
+  left: calc(50% - 50px);
+}
+
+.wall-container .d-none {
+  display: none;
+}
+
+/* .wall-container.half-wall-container {
+  height: 75vh;
+  width: 50%;
+  position: fixed;
+  right: 0;
+} */
+
+.wall-container .grid-wrapper .player:not(.empty):hover .close-stream-btn {
+  display: block;
+}
+
+.wall-container .grid-wrapper.full {
+  background-color: #000;
+  align-items: center;
+  justify-content: center;
+}
+
+.wall-container .grid-wrapper .player.full-screen-1 {
+  width: 100%;
+  height: 66.66%;
+  border: 2px solid rgb(0, 0, 0);
+}
+
+.wall-container .grid-wrapper .player.full-screen-0 {
+  width: 100%;
+  height: 100%;
+  border: 2px solid rgb(0, 0, 0);
+}
+/* ----------------------地图部分---------------------------------- */
+.wrap {
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  background: rgba(230, 230, 230, 0.45);
+}
+.myposition {
+  z-index: 1;
+  left: 120px;
+  bottom: 0px;
+  width: 400px;
+  height: 30px;
+  color: #eee;
+  position: absolute;
+}
+
+.ol-attribution {
+  display: none;
+}
+
+/* 提示框的样式信息 */
+
+.tooltip {
+  position: relative;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  color: white;
+  padding: 4px 8px;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.tooltip-measure {
+  opacity: 1;
+  font-weight: bold;
+}
+
+.tooltip-static {
+  background-color: #ffcc33;
+  color: black;
+  border: 1px solid white;
+}
+
+.tooltip-measure::before,
+.tooltip-static::before {
+  border-top: 6px solid rgba(0, 0, 0, 0.5);
+  border-right: 6px solid transparent;
+  border-left: 6px solid transparent;
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  margin-left: -7px;
+  left: 50%;
+}
+
+.tooltip-static::before {
+  border-top-color: #ffcc33;
+}
+.clear_ranging_line {
+  display: block;
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: url("../image/close.png");
+  background-size: 100% 100%;
+  top: -10px;
+  right: -10px;
+  cursor: pointer;
+}
+
+/*Popop弹窗*/
+/* 提示框的样式信息 */
+.ol-popup {
+  position: absolute;
+  background-color: rgba(232, 232, 232, 0.7);
+  border-radius: 10px;
+  -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+  padding: 15px 20px 35px;
+  border: 0px solid #013d55;
+  bottom: -80px;
+  left: 20px;
+  min-width: 80px;
+  width: 80px;
+  height: 50px;
+  background-size: 100% 100%;
+  color: #eee;
+  font-size: 13px;
+  border-radius: 5px;
+}
+.ol-popup:after {
+  border-top-color: #eeeeee;
+  border-width: 10px;
+  left: 48px;
+  margin-left: -10px;
+}
+.popup-content {
+  width: 80px;
+  height: 50px;
+}
+.popup-content > p {
+  margin-top: auto;
+}
+.popup-content > p:hover {
+  cursor: pointer;
+}
+.popup-content > p > span {
+  display: block;
+  color: #183764;
+  font: 15px "Microsoft YaHei UI";
+  text-align: center;
+}
+.popup-content > p > span:hover {
+  color: #051e48;
 }

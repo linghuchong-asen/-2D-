@@ -4,9 +4,9 @@
  * @Author: yangsen
  * @Date: 2022-09-06 08:51:52
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-07 14:35:55
+ * @LastEditTime: 2022-09-15 11:45:14
  */
-import { http } from "@/utils/axios";
+import { http } from "@/utils/http";
 
 // 登录请求传参类型
 export interface LoginParams {
@@ -17,9 +17,11 @@ export interface LoginParams {
 export interface LoginData {
   refresh: string;
   access: string;
-  detail?: string;
 }
 
 /* 发送登录请求 */
 export const loginHttp = (params: LoginParams) =>
-  http<LoginData>("/API/V0.1/Account/token/", { method: "post", params });
+  http<LoginData | { detail: string }>("/API/V0.1/Account/token/", {
+    method: "post",
+    params,
+  });

@@ -4,7 +4,7 @@
  * @Author: yangsen
  * @Date: 2022-09-01 13:40:51
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-08 09:03:44
+ * @LastEditTime: 2022-09-15 14:04:40
 -->
 <template>
   <el-row justify="center" style="height: 100%; align-content: center">
@@ -37,7 +37,7 @@
 <script lang="ts" setup>
 import { reactive, ref } from "vue";
 import { getPngUrl } from "@/utils/index";
-import { loginHttp } from "./server";
+import { loginHttp, type LoginData } from "./server";
 import { useRouter } from "vue-router";
 import { ElMessage, type FormInstance, type FormRules } from "element-plus";
 
@@ -87,9 +87,9 @@ const submitForm = () => {
         });
         const { data, status } = loginData;
         if (status === 200) {
-          const { access, refresh } = data;
-          sessionStorage.setItem("Authorization", access);
-          sessionStorage.setItem("refresh", refresh);
+          const { access, refresh } = data as LoginData;
+          localStorage.setItem("Authorization", access);
+          localStorage.setItem("refresh", refresh);
           // 登录成功，路由跳转
           router.push({ name: "home" });
         } else if (status === 401) {
@@ -98,9 +98,10 @@ const submitForm = () => {
             message: "用户名或密码错误",
           });
         } else {
+          const errorData = data as { detail: string };
           ElMessage({
             type: "error",
-            message: data.detail,
+            message: errorData.detail,
           });
         }
       } catch (error) {

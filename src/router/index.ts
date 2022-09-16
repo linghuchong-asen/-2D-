@@ -20,7 +20,7 @@ const router = createRouter({
 
 /* 路由导航守卫 */
 router.beforeEach(async (to) => {
-  const isAuthenticated = window.sessionStorage.getItem("Authorization");
+  const isAuthenticated = localStorage.getItem("Authorization");
   if (
     // 检查用户是否已登录
     !isAuthenticated &&

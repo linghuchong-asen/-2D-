@@ -23,11 +23,19 @@ export default defineConfig({
     proxy: {
       // 类型： Record<string, string | ProxyOp 为开发服务器配置自定义代理规则
       "/bapi": {
-        target: "http://192.168.0.100:8099/",
+        target: "http://192.168.0.100:8099",
         changeOrigin: true, // 如果设置成true：发送请求头中host会设置成target;https://segmentfault.com/a/1190000020317573
         secure: false, // 默认false，设置为true，需要验证SSL证书,使用https时应该使用
         rewrite: (path) => path.replace(/^\/bapi/, ""), // rewrite 可以把请求的 URL 进行重写，这里因为假设后端的 API 路径不带 /api 段，所以我们使用 rewrite去掉 /api。给 rewrite传递一个函数，函数的参数 path是前端请求的 API 路径，后面直接使用了 replace() 方法，把 /api开头的这一段替换为空。
       },
+      // 暂时没有实现在vite.config中配置websocket
+      /* "/wsapi": {
+        target: "ws://192.168.0.100:8099",
+        ws: true,
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/wsapi/, ""),
+      }, */
     },
   },
 });
