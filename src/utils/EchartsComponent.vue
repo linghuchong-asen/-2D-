@@ -3,13 +3,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, toRefs, onUnmounted } from "vue";
+import { toRefs, onUnmounted, onMounted } from "vue";
 import * as echarts from "echarts";
 import type { EChartsOption, ECharts } from "echarts";
 // 接收父组件传值
 const props = defineProps<{
   chartId: string;
-  option: EChartsOption;
+  option: unknown;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleClick?: (params: any) => void;
 }>();
@@ -18,7 +18,8 @@ const props = defineProps<{
    使用toRefs()就可以使用解构赋值，不然报错在setup根下使用解构会失去响应性
    .value是实际的值
 */
-const id = toRefs(props).chartId.value;
+const id = toRefs(props).chartId;
+const option = toRefs(props).option.value as EChartsOption;
 let chart: ECharts | null;
 
 // 图标配置及渲染
@@ -37,12 +38,12 @@ const renderChart = (chart: ECharts, option: EChartsOption) => {
 const handleResize = () => {
   if (chart) chart.resize();
 };
-// 页面渲染成功，开始绘制图表
+// 页面渲染成功及id变化时，绘制图表;
 onMounted(() => {
-  const chartIdDiv = document.getElementById(props.chartId);
+  const chartIdDiv = document.getElementById(id.value);
   if (chartIdDiv) {
     chart = echarts.init(chartIdDiv); // 创建一个echarts实例
-    renderChart(chart, props.option);
+    if (option) renderChart(chart, option);
   }
 });
 

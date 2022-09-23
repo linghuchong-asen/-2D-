@@ -4,7 +4,7 @@
  * @Author: yangsen
  * @Date: 2022-09-01 16:40:01
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-15 14:12:23
+ * @LastEditTime: 2022-09-23 11:31:11
  */
 import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
@@ -68,8 +68,6 @@ export const http = async <T>(
   if (config.method !== "get" && config.method !== "delete") {
     // post put请求
     const dataT = await doHttp({ url, data: params });
-    console.log(dataT);
-    console.log(123);
     const { data, status }: { data: T; status: number } = dataT;
     return { data, status };
   } else {

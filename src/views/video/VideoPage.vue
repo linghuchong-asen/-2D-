@@ -25,7 +25,6 @@ const videoFullScreen = ref(false);
 const cut = () => {
   videoFullScreen.value = !videoFullScreen.value;
   emit("fullScreen", videoFullScreen.value);
-  console.log("切换全屏");
   // 切换视频墙窗格
   playerWall.cutFlag();
 };

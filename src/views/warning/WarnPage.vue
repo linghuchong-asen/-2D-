@@ -17,9 +17,6 @@ import { ref } from "vue";
 import type { TabsPaneContext } from "element-plus";
 import RealTimeWarn from "./components/RealTimeWarn.vue";
 import HistoryWarn from "./components/HistoryWarn.vue";
-import { createWs } from "./websocket";
-// 建立websocket链接
-createWs();
 
 const activeName = ref("first");
 const handleClick = (tab: TabsPaneContext, event: Event) => {

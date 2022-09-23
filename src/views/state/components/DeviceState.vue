@@ -1,16 +1,39 @@
 <template>
   <div style="width: 100%; height: 100%">
-    <EchartsComponent chartId="deviceBar" :option="deviceOption()" />
+    <EchartsComponent
+      chartId="deviceBar"
+      :option="deviceOption"
+      :key="deviceBar"
+    />
   </div>
 </template>
-<script lang="ts" setup>
-import EchartsComponent from "@/utils/EchartsComponent.vue";
-import type { EChartsOption, LinearGradientObject } from "echarts";
 
-const deviceOption = (): EChartsOption => {
+<script lang="ts" setup>
+import { ref, reactive, watchEffect, onMounted } from "vue";
+import EchartsComponent from "@/utils/EchartsComponent.vue";
+import { deviceValue } from "../server";
+import type { EChartsOption, LinearGradientObject } from "echarts";
+import type { BarValue } from "./device";
+
+// 设备状态，数据源类型
+const barValue = reactive<BarValue>({
+  radarTotal: 0,
+  radarOffline: 0,
+  videoTotal: 0,
+  videoOffline: 0,
+});
+const deviceBar = ref<string>("");
+
+// 建立websocket链接
+deviceValue(barValue);
+
+const deviceOption = reactive<EChartsOption>({});
+
+const deviceOptionFun = (): EChartsOption => {
+  // http://echarts.zhangmuchen.top/#/detail?cid=3807b-60af-0ea5-97ccf-dae1bc68
   const newchartName = ["雷达", "相机"],
-    newchartValue1 = ["91", "51"],
-    newchartValue2 = ["83", "81"];
+    newchartValue1 = [barValue.radarTotal, barValue.videoTotal],
+    newchartValue2 = [barValue.radarOffline, barValue.videoOffline];
   const barWidth = 20;
   // 设置渐变色
   const color1: LinearGradientObject = {
@@ -74,7 +97,6 @@ const deviceOption = (): EChartsOption => {
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       formatter: function (param: any) {
-        // console.log(param, 'param');
         return `${param[0].name}<br />${param[0].marker}${param[0].seriesName} ${param[0].data}<br />${param[1].marker}${param[1].seriesName} ${param[1].data}`;
       },
     },
@@ -146,7 +168,7 @@ const deviceOption = (): EChartsOption => {
         z: 15,
         color: "#ffc241",
         zlevel: 2, // zlevel的优先级高于z;用于canvas分层
-        data: newchartValue2,
+        data: newchartValue2, // 这里只要保证数组的长度等于柱状图的类型数量就行，数组中具体数值没有影响
       },
 
       // 柱状图
@@ -205,5 +227,20 @@ const deviceOption = (): EChartsOption => {
     ],
   };
 };
+
+// deviceBar的值的修改只能放在watchEffect中；因为在此watchEffect中会侦听deviceOption，deviceBar两个状态的变化，如果把deviceBar.value =赋值语句拿到外面，代码同步执行，得到的是deviceBar0000；只有当deviceOption变化时，得到的才是后端返回的数据;这就是一个状态变化执行副作用（deviceOption状态变化，执行改变deviceBar的副作用）
+watchEffect(() => {
+  Object.assign(deviceOption, deviceOptionFun());
+  // eharts容器key
+  (() => {
+    deviceBar.value =
+      "deviceBar" +
+      barValue.radarTotal +
+      barValue.radarOffline +
+      barValue.videoTotal +
+      barValue.videoOffline;
+  })();
+});
 </script>
+
 <style lang="less" scoped></style>

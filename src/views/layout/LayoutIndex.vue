@@ -31,7 +31,7 @@
 </template>
 <script lang="ts" setup>
 import { ref, watch } from "vue";
-import HeaderPage from "./components/HeaderPage.vue";
+import HeaderPage from "./components//header/HeaderPage.vue";
 import WarnPage from "../warning/WarnPage.vue";
 import StatePage from "../state/StatePage.vue";
 import VideoPage from "../video/VideoPage.vue";
@@ -59,7 +59,7 @@ watch(videoFull, () => {
         width: 52vw;
         height: 100%;
         float: left;
-        background-color: palegreen;
+        // background-color: palegreen;
       }
       .mapRight {
         position: relative;

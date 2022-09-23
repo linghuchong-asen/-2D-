@@ -4,11 +4,11 @@
  * @Author: yangsen
  * @Date: 2022-09-16 19:28:31
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-16 19:31:13
+ * @LastEditTime: 2022-09-21 17:42:56
  */
 
 // 颜色转换rgb转十六进制
-function rgbaToHexColor(rgbaArray, alphaMaxVal = 1) {
+export function rgbaToHexColor(rgbaArray, alphaMaxVal = 1) {
   //补位警号
   return (
     "#" +
@@ -28,46 +28,4 @@ function rgbaToHexColor(rgbaArray, alphaMaxVal = 1) {
       })
       .join("")
   );
-}
-
-//防区填充色
-function getDrawPolygonFillColor(working, delay, bypass, isfailure) {
-  if (isfailure) {
-    //  失效
-    return "rgba(225, 26, 26, 0.12)";
-  } else if (bypass) {
-    //  旁路
-    return "rgba(255, 0, 0, 0.12)";
-  } else if (!working) {
-    //撤防中  1、布防 2、撤防
-    return "rgba(0, 0, 0, 0.12)";
-  } else if (delay == 0) {
-    //即时防区
-    return "rgba(0, 255, 126, 0.12)";
-  } else if (delay == 1) {
-    //延时防区
-    return "rgba(225, 225, 0, 0.12)";
-  }
-  return "rgba(0, 0, 0, 1)";
-}
-
-//防区边框色
-function getDrawPolygonStrokeColor(working, delay, bypass, isfailure) {
-  if (isfailure) {
-    //  失效
-    return "rgba(225, 26, 26, 0.3)";
-  } else if (bypass) {
-    //  旁路
-    return "rgba(255, 0, 0, 0.3)";
-  } else if (!working) {
-    //撤防中  1、布防 2、撤防
-    return "rgba(0, 0, 0, 0.3)";
-  } else if (delay == 0) {
-    //即时防区
-    return "rgba(0, 255, 126, 0.3)";
-  } else if (delay == 1) {
-    //延时防区
-    return "rgba(225, 225, 0, 0.3)";
-  }
-  return "rgba(0, 0, 0, 1)";
 }

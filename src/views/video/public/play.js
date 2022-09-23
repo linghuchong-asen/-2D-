@@ -28,12 +28,16 @@ export function initServer(ip) {
   Server.ip = ip;
 }
 
-export function PlayerWallProcessor(flag) {
-  // flag 标识 0 创建全屏 1 创建半屏
-  this.flag = flag;
-  this.container = document.getElementsByClassName("wall-container")[0];
-  this.openPlayers = {};
-  this.initPlayer = () => {
+// 视频墙类
+export class PlayerWallProcessor {
+  constructor(flag) {
+    // flag 标识 0 创建全屏 1 创建半屏
+    this.flag = flag;
+    this.container = document.getElementsByClassName("wall-container")[0];
+    this.openPlayers = {};
+  }
+
+  initPlayer() {
     const _this = this;
     const grid = "grid-6";
     const count = 6;
@@ -66,12 +70,13 @@ export function PlayerWallProcessor(flag) {
       players += player;
     }
     _this.containerWrapper.innerHTML = players;
-  };
+  }
 
-  this.createWall = () => {
+  createWall() {
     const _this = this;
     _this.initPlayer();
     _this.player = document.getElementsByClassName("player");
+
     const click = (index) => {
       return () => {
         if (_this.selectindex != index) {
@@ -186,9 +191,9 @@ export function PlayerWallProcessor(flag) {
         }
       }
     }
-  };
+  }
 
-  this.playHisSelect = (stream_id, start_time, end_time) => {
+  playHisSelect(stream_id, start_time, end_time) {
     const _this = this;
     const index = _this.selectindex;
     // 指定窗体播放历史视频
@@ -211,14 +216,15 @@ export function PlayerWallProcessor(flag) {
       "hisplayer_" + index,
       _this.openPlayers[index].hisstream_id
     );
-  };
+  }
 
-  this.playSelect = (stream_id) => {
-    // 在选中窗体播放视频
+  // 在选中窗体播放视频
+  playSelect(stream_id) {
     this.play(this.selectindex, stream_id);
-  };
+  }
 
-  this.play = (index, stream_id) => {
+  // 播放视频方法；参数1：视频墙窗格的index；参数2：视频源的摄像机的id
+  play(index, stream_id) {
     const _this = this;
     // 指定窗体播放视频
     _this.player[index].className = _this.player[index].className.replace(
@@ -238,14 +244,14 @@ export function PlayerWallProcessor(flag) {
       };
     })(index);
     localStorage.setItem("player_" + index, stream_id);
-  };
+  }
 
-  this.closePlay = (i) => {
+  closePlay(i) {
     // 关闭视频窗
     localStorage.setItem("player_" + i, 0);
     this.destroy(i);
-  };
-  this.destroy = (i) => {
+  }
+  destroy(i) {
     // 销毁视频
     if (
       this.player[i].getElementsByTagName("video")[0].hasAttribute("controls")
@@ -257,41 +263,44 @@ export function PlayerWallProcessor(flag) {
     this.player[i].className += " empty";
     this.openPlayers[i].destroy();
     delete this.openPlayers[i];
-  };
+  }
 
-  this.initWall = () => {
+  initWall() {
     // 初始化视频墙
     const _this = this;
     _this.container.innerHTML =
       '<div class="container-fluid"><div class="content-wrapper"><div class="grid-wrapper"></div></div></div>';
     _this.containerWrapper = document.getElementsByClassName("grid-wrapper")[0];
     _this.createWall();
-  };
+  }
 
-  this.cutFlag = () => {
+  cutFlag() {
     // 切换视频墙
     for (const item in this.openPlayers) {
       this.destroy(item);
     }
     this.flag = this.flag == 0 ? 1 : 0;
     this.initWall();
-  };
+  }
 }
 
-export function WebRTCPlayer(video) {
-  this.webrtc = null;
-  this.webrtcSendChannel = null;
-  this.webrtcSendChannelInterval = null;
-  this.stream_id = 0;
-  this.hisstream_id = 0;
-  this.video = video;
-  this.loader = null;
-  this.index = -1;
-  this.onClosePlay = null;
-  this.ishistory = false;
-  this.hls = null;
+// webRTC类
+export class WebRTCPlayer {
+  constructor(video) {
+    this.webrtc = null;
+    this.webrtcSendChannel = null;
+    this.webrtcSendChannelInterval = null;
+    this.stream_id = 0;
+    this.hisstream_id = 0;
+    this.video = video;
+    this.loader = null;
+    this.index = -1;
+    this.onClosePlay = null;
+    this.ishistory = false;
+    this.hls = null;
+  }
 
-  this.playHistory = function (start_time, end_time) {
+  playHistory(start_time, end_time) {
     const _this = this;
     _this.ishistory = true;
     const data = {
@@ -325,9 +334,9 @@ export function WebRTCPlayer(video) {
           _this.onClosePlay();
         }
       });
-  };
+  }
 
-  this.playWebrtc = function () {
+  playWebrtc() {
     const _this = this;
     _this.loader.className = _this.loader.className.replace(" d-none", "");
     // 创建一个连接
@@ -366,8 +375,8 @@ export function WebRTCPlayer(video) {
     };
     // 收到消息事件
     this.webrtcSendChannel.onmessage = (e) => console.log(e.data);
-  };
-  this.handleNegotiationNeeded = async function () {
+  }
+  async handleNegotiationNeeded() {
     const _this = this;
     // 启动创建SDP提议，以启动到远程对等点的新 WebRTC 连接。
     const offer = await _this.webrtc.createOffer();
@@ -402,8 +411,8 @@ export function WebRTCPlayer(video) {
           _this.onClosePlay();
         }
       });
-  };
-  this.destroy = function () {
+  }
+  destroy() {
     if (this.ishistory) {
       if (this.hls) {
         this.hls.destroy();
@@ -417,5 +426,5 @@ export function WebRTCPlayer(video) {
     this.video.srcObject = null;
     if (this.loader && !("d-none" in this.loader.classList))
       this.loader.className += " d-none";
-  };
+  }
 }
