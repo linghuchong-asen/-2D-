@@ -3,10 +3,11 @@
  * @Author: yangsen
  * @Date: 2022-09-09 11:55:25
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-22 17:36:58
+ * @LastEditTime: 2022-09-29 08:46:06
 -->
 <template>
   <div class="stateBox">
+    <div class="title">系统状态</div>
     <div class="video">
       <div class="circleLargeVideo">
         <div class="circleSmallVideo">视频<br />服务</div>
@@ -114,9 +115,19 @@ watchEffect(() => {
   display: flex;
   flex-wrap: wrap;
 
+  .title {
+    width: 100%;
+    height: 10%;
+    font-size: 14px;
+    color: #ced6e0;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   .video {
     width: 100%;
-    height: 50%;
+    height: 45%;
     flex-grow: 2;
     display: flex;
     justify-content: center;

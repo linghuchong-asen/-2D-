@@ -30,13 +30,82 @@ html {
 li {
   list-style-type: none;
 }
+/* -----------------element部分-------------------------------- */
 .subMenu .el-menu--popup {
   min-width: 80px;
 }
 .subMenu .el-menu-item {
   font-size: 0.875rem;
 }
+.defence .el-dialog {
+  background-color: rgba(9, 34, 68, 0.9);
+  color: #38c3fd;
+}
+.defence .el-dialog .el-dialog__headerbtn {
+  display: none;
+}
+.defence .el-dialog .el-dialog__header {
+  margin-right: 0;
+}
+.defence .el-dialog .el-dialog__body {
+  padding-top: 0.625rem;
+}
 
+.exhibition .is-leaf {
+  background-color: #18376e !important;
+  color: #38c3fd;
+}
+/* .exhibition .el-table__row {
+  background-color: #18376e !important;
+} */
+.exhibition .el-table .working-row {
+  background-color: #b3e19d;
+}
+.exhibition .el-table .notWorking-row {
+  background-color: #f3d19e;
+}
+.exhibition .el-table .byPass-row {
+  background-color: #fab6b6;
+}
+.exhibition .btn-prev {
+  background-color: #18376e !important;
+}
+.exhibition .btn-next {
+  background-color: #18376e !important;
+}
+.exhibition .number {
+  background-color: rgba(24, 55, 110, 0.8) !important;
+  color: #2ea1d1 !important;
+}
+.exhibition .is-active {
+  background-color: #409eff !important;
+  color: #fff !important;
+}
+.exhibition .el-input__wrapper {
+  background-color: #18376e !important;
+  color: #38c3fd !important;
+}
+.exhibition .el-pagination__jump {
+  color: #38c3fd !important;
+}
+.exhibition .el-input__inner {
+  color: #38c3fd !important;
+}
+.defenceDetailDialog .el-dialog {
+  margin-top: 18.75rem !important;
+}
+.defenceDetailDialog .el-dialog__headerbtn {
+  display: block !important;
+}
+.defenceDetailDialog .el-dialog__close {
+  color: #38c3fd !important;
+}
+.defenceDetailDialog .el-dialog__title {
+  color: #38c3fd !important;
+}
+.defenceDetailDialog .el-dialog__body {
+  height: 31.25rem;
+}
 /* ------------------视屏墙------------------------- */
 .wall-container *,
 .wall-container ::after,

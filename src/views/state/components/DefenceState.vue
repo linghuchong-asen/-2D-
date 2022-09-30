@@ -1,4 +1,5 @@
 <template style="width: 100%; height: 100%">
+  <div class="title">防区状态</div>
   <EchartsComponent
     chartId="defencePie"
     :option="pieOption"
@@ -36,15 +37,6 @@ const pieOptionFun = (): EChartsOption => {
     // 提示框组件
     tooltip: {
       trigger: "item",
-    },
-    // 标题
-    title: {
-      text: "防区状态",
-      left: "center",
-      top: 5,
-      textStyle: {
-        fontSize: 12,
-      },
     },
     // 图标的类型，数值，属性都在series配置
     series: [
@@ -173,4 +165,15 @@ watchEffect(() => {
     pieValue.working_num;
 });
 </script>
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.title {
+  width: 100%;
+  float: left;
+  font-size: 14px;
+  color: #ced6e0;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>

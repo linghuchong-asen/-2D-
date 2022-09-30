@@ -16,7 +16,7 @@ import { ElMessage } from "element-plus";
 import { onMounted } from "vue";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { initMap, drawAreaPolygon, drawPoint } from "./public/map1.js";
+import { initMap, drawAreaPolygon, drawPoint } from "./public/map.js";
 import {
   getAlarmArea,
   elementProject,

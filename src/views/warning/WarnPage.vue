@@ -1,6 +1,6 @@
 <template>
   <div class="warnBox">
-    <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+    <el-tabs v-model="activeName" @tab-click="handleClick" :stretch="true">
       <el-tab-pane label="实时告警" name="first">
         <div class="realTimeInfo">
           <RealTimeWarn></RealTimeWarn>
@@ -15,8 +15,8 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import type { TabsPaneContext } from "element-plus";
-import RealTimeWarn from "./components/RealTimeWarn.vue";
-import HistoryWarn from "./components/HistoryWarn.vue";
+import RealTimeWarn from "./components/realTime/RealTimeWarn.vue";
+import HistoryWarn from "./components/history/HistoryWarn.vue";
 
 const activeName = ref("first");
 const handleClick = (tab: TabsPaneContext, event: Event) => {
@@ -30,7 +30,18 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
   padding-right: 0.3125rem;
   background-color: #106898;
 
+  ::v-deep .el-tabs {
+    height: 100%;
+  }
+  ::v-deep .el-tabs .el-tabs__header {
+    height: 19%;
+  }
+  ::v-deep .el-tabs .el-tabs__content {
+    height: 72%;
+    overflow-y: auto;
+  }
   .realTimeInfo {
+    height: 100%;
     display: flex;
     flex-wrap: wrap;
   }

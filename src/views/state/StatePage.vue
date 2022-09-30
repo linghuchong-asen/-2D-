@@ -1,12 +1,12 @@
 <template>
   <div class="stateContainer">
-    <div class="pilot"><PilotLamp /></div>
     <div class="defence">
       <DefenceState />
     </div>
     <div class="device">
       <DeviceState />
     </div>
+    <div class="pilot"><PilotLamp /></div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -17,18 +17,18 @@ import DeviceState from "./components/DeviceState.vue";
 <style lang="less" scoped>
 .stateContainer {
   height: 100%;
-  // background-color: #7f8c8d;
+  background-color: #106898;
   .pilot {
     width: 33.33%;
     height: 100%;
     float: left;
-    background-color: #747d8c;
+    // background-color: #0676b6;
   }
   .defence {
     width: 33.33%;
     height: 100%;
     float: left;
-    background-color: #bdc3c7;
+    // background-color: #bdc3c7;
   }
   .device {
     width: 33.33%;

@@ -6,6 +6,7 @@ import router from "./router";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 import * as ElementPlusIconsVue from "@element-plus/icons-vue";
+import locale from "element-plus/lib/locale/lang/zh-cn";
 
 import "./assets/main.css";
 
@@ -15,7 +16,7 @@ app.config.globalProperties.$wsBaseUrl = "ws://192.168.0.100:8099";
 app.config.globalProperties.$httpBaseUrl = "http://192.168.0.100:8099";
 app.use(createPinia());
 app.use(router);
-app.use(ElementPlus);
+app.use(ElementPlus, { locale });
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component);
 }

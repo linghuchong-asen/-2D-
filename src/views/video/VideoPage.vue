@@ -11,7 +11,10 @@ import { onMounted, ref } from "vue";
 // @ts-ignore
 import { initServer, PlayerWallProcessor } from "./public/play.js";
 import { getGlobalVar } from "@/utils/index";
+import { useVideoStore } from "@/stores/videoStore";
 
+// 视频相关全局状态
+const videoStore = useVideoStore();
 const instance = getGlobalVar();
 
 // 子组件向父组件传值ts写法
@@ -36,6 +39,7 @@ onMounted(() => {
   initServer(httpUrl);
   //   新建视频墙控制器实例
   playerWall = new PlayerWallProcessor(1);
+  videoStore.video = playerWall;
   playerWall.initWall();
 });
 </script>

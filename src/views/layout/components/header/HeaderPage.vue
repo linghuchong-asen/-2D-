@@ -4,7 +4,7 @@
  * @Author: yangsen
  * @Date: 2022-09-07 17:29:20
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-23 09:32:02
+ * @LastEditTime: 2022-09-30 11:29:06
 -->
 <template>
   <div class="box1">
@@ -54,14 +54,48 @@
       <span> Some content </span>
     </el-popover>
   </div>
+
+  <!-- 防区管理弹窗 -->
+  <div class="defence">
+    <el-dialog
+      v-model="denfenceQueryVisible"
+      title="Tips"
+      width="70%"
+      custom-class="defence"
+      :modal="false"
+      :close-on-click-modal="false"
+    >
+      <template #header="{ close }">
+        <div class="myHeader">
+          <div>
+            <IconFont
+              name="icon-anfangquyuguanli"
+              style="float: left; margin-top: 3px"
+            ></IconFont>
+            <h4 style="float: left; margin-left: 10px">防区状态</h4>
+          </div>
+          <IconFont
+            name="icon-guanbi"
+            @click="close"
+            style="cursor: pointer"
+          ></IconFont>
+        </div>
+      </template>
+      <DefenceManagement :group="defenceGroup"></DefenceManagement>
+    </el-dialog>
+  </div>
 </template>
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, onMounted, onUpdated, onUnmounted, reactive } from "vue";
 import { useRouter } from "vue-router";
+import DefenceManagement from "./components/DefenceManagement.vue";
+import IconFont from "@/utils/IconFont.vue";
+import { getDefenceGroup, type DefenceGroup } from "./server";
+import { ElMessage } from "element-plus";
 
 const router = useRouter();
 const activeIndex = ref("1");
-// 要素列表的ref
+// 图层管理的ref
 const elementListRef = ref(null);
 // 点击菜单的回调函数
 const handleSelect = (key: string) => {
@@ -69,18 +103,59 @@ const handleSelect = (key: string) => {
     case "1-1":
       // 展示要素列表
       break;
-
+    case "1-2":
+      // 防区管理
+      changeDefenceQueryVisible();
+      break;
     default:
       break;
   }
 };
 
-// 退出登录
+/* ------------------防区管理-------------------------- */
+// 防区分组
+const defenceGroup = reactive<string[]>([]);
+// 防区查询对话框显示隐藏
+const denfenceQueryVisible = ref(false);
+const changeDefenceQueryVisible = async () => {
+  // 获取防区分组
+  try {
+    const defenceGroupData = await getDefenceGroup();
+    const { data, status } = defenceGroupData;
+    if (status === 200) {
+      const successData = data as DefenceGroup[];
+      successData.forEach((item) => {
+        defenceGroup.push(item.name);
+      });
+    } else {
+      const errorData = data as { detail: string };
+      ElMessage({
+        type: "error",
+        message: errorData.detail,
+      });
+    }
+  } catch (error) {
+    console.error("获取防区分组出错" + error);
+  }
+  denfenceQueryVisible.value = !denfenceQueryVisible.value;
+};
+
+/* -------------------退出登录---------------------------------  */
 const logout = () => {
   localStorage.removeItem("Authorization");
   localStorage.removeItem("refresh");
   router.push({ name: "login" });
 };
+
+onMounted(() => {
+  console.log("防区管理组件onMounted");
+});
+onUpdated(() => {
+  console.log("防区管理组件onUpdated");
+});
+onUnmounted(() => {
+  console.log("防区管理组件onUnmounted");
+});
 </script>
 <style scoped lang="less">
 .box1 {
@@ -94,5 +169,9 @@ const logout = () => {
       flex-grow: 1;
     }
   }
+}
+.myHeader {
+  display: flex;
+  justify-content: space-between;
 }
 </style>

@@ -4,7 +4,7 @@
  * @Author: yangsen
  * @Date: 2022-09-16 19:28:31
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-23 14:42:21
+ * @LastEditTime: 2022-09-29 08:47:12
  */
 import Map from "ol/Map";
 import View from "ol/View";
@@ -292,21 +292,21 @@ export const initMap = () => {
       map.forEachFeatureAtPixel(pixel, function (feature) {
         // 获取id
         const getid = feature.getId();
+        console.log(getid);
         if (getid == null) {
           return;
         } else if (getid.indexOf("element") > -1) {
-          document.getElementById("popup-content").html(`
+          // 当要素重叠点击时，显示最后一个
+          document.getElementById("popup-content").innerHTML = `
                 <p><span class="p_realtime">实况视频</span></p>
                 <p><span class="p_history">历史回放</span></p>
                 <p><span class="p_proprety">属性信息</span></p>
-                `);
+                `;
           // 点击的地图的位置
           const coodinate = e.coordinate;
           // 弹窗的位置
           overlay.setPosition(coodinate);
           tip_message_flag = false;
-        } else {
-          document.getElementById("popup-content").html(``);
         }
       });
     }
@@ -354,7 +354,7 @@ export const initMap = () => {
   }
 
   //测距 ranging
-
+  /* 官网案例：https://openlayers.org/en/latest/examples/measure.html */
   // function ranging() {
   //   map.removeInteraction(draw_ranging); //移除绘制图形
   //   const key = map.on("pointermove", pointerMoveHandler);
@@ -730,7 +730,7 @@ export function drawAreaPolygon(
   drawPolygon("area" + id, strokeColor, fillColor, geoData);
 }
 
-//画点
+//画点,地图上的雷达，摄像机等符号
 export function drawPoint(id, imgUrl, text, textColor, geoData) {
   const poiSource = new VectorSource({});
   const poiVector = new VectorLayer({

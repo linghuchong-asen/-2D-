@@ -4,7 +4,7 @@
  * @Author: yangsen
  * @Date: 2022-09-01 13:40:51
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-15 14:04:40
+ * @LastEditTime: 2022-09-29 10:13:34
 -->
 <template>
   <el-row justify="center" style="height: 100%; align-content: center">
@@ -74,7 +74,7 @@ const loginForm = reactive({
 /* 登录方法 */
 const submitForm = () => {
   /* loginFormInstance.value引用能获取到el-form组件实例，上面有validate方法；
-  这里掉一下validate的验证方法还是上面定义的rules方法；
+  这里调一下validate的验证方法还是上面定义的rules方法；
   validate的第一个参数是boolean值，验证通过为true，未通过false；
   第二个参数是当验证未通过时，返回无效的表单；验证通过第二个参数是undefined */
   if (!loginFormInstance.value) return;

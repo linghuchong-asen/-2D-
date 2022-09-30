@@ -1,15 +1,18 @@
 <template>
   <div style="width: 100%; height: 100%">
-    <EchartsComponent
-      chartId="deviceBar"
-      :option="deviceOption"
-      :key="deviceBar"
-    />
+    <div class="title">设备状态</div>
+    <div class="echarts">
+      <EchartsComponent
+        chartId="deviceBar"
+        :option="deviceOption"
+        :key="deviceBar"
+      />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, watchEffect, onMounted } from "vue";
+import { ref, reactive, watchEffect } from "vue";
 import EchartsComponent from "@/utils/EchartsComponent.vue";
 import { deviceValue } from "../server";
 import type { EChartsOption, LinearGradientObject } from "echarts";
@@ -43,15 +46,16 @@ const deviceOptionFun = (): EChartsOption => {
     y2: 1,
     type: "linear",
     global: false,
+    // linear-gradient(135deg,#90f7ec,#32ccbc)
     colorStops: [
       {
         //第一节下面
         offset: 0,
-        color: "#1C98CD",
+        color: "#90f7ec",
       },
       {
         offset: 1,
-        color: "rgba(61,187,255,.26)",
+        color: "rgba(50, 204, 188,.5)",
       },
     ],
   };
@@ -70,15 +74,15 @@ const deviceOptionFun = (): EChartsOption => {
       },
       {
         offset: 1,
-        color: "rgba(255,164,41,.26)",
+        color: "rgba(255,164,41,.5)",
       },
     ],
   };
   return {
-    backgroundColor: "#000E1A", //背景色
     // 图例
     legend: {
       data: ["总数", "异常数"],
+      top: "13%",
       icon: "rect",
       itemWidth: 15,
       itemHeight: 15,
@@ -102,9 +106,9 @@ const deviceOptionFun = (): EChartsOption => {
     },
     // 绘图区域
     grid: {
-      top: "25%",
+      top: "30%",
       left: "5%",
-      bottom: "10%",
+      bottom: "5%",
       right: "5%",
       containLabel: true,
     },
@@ -155,7 +159,7 @@ const deviceOptionFun = (): EChartsOption => {
         symbolOffset: ["-81%", -4],
         symbolPosition: "end",
         z: 15,
-        color: "#3eb6f5",
+        color: "#90f7ec",
         zlevel: 2,
         data: newchartValue1,
       },
@@ -211,7 +215,7 @@ const deviceOptionFun = (): EChartsOption => {
         symbolSize: [barWidth, 6],
         symbolOffset: ["-81%", 4],
         z: 1,
-        color: "rgba(62,182,245,.19)",
+        color: "rgba(50, 204, 188,.5)",
         // 有几个数据这里就应该有几项
         data: newchartValue2,
       },
@@ -242,5 +246,19 @@ watchEffect(() => {
   })();
 });
 </script>
-
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.title {
+  width: 100%;
+  float: left;
+  font-size: 14px;
+  color: #ced6e0;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.echarts {
+  width: 100%;
+  height: 100%;
+}
+</style>
