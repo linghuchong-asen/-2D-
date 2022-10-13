@@ -6,13 +6,14 @@
         chartId="deviceBar"
         :option="deviceOption"
         :key="deviceBar"
+        :farther-mounted="mountedFlag"
       />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, watchEffect } from "vue";
+import { ref, reactive, watchEffect, onMounted } from "vue";
 import EchartsComponent from "@/utils/EchartsComponent.vue";
 import { deviceValue } from "../server";
 import type { EChartsOption, LinearGradientObject } from "echarts";
@@ -244,6 +245,12 @@ watchEffect(() => {
       barValue.videoTotal +
       barValue.videoOffline;
   })();
+});
+
+/* 父组件mounted之后echarts再进行渲染 */
+const mountedFlag = ref(false);
+onMounted(() => {
+  mountedFlag.value = true;
 });
 </script>
 <style lang="less" scoped>

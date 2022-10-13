@@ -3,20 +3,14 @@
  * @Author: yangsen
  * @Date: 2022-09-27 17:46:27
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-28 09:42:29
+ * @LastEditTime: 2022-10-13 17:58:58
  */
 
-import type { Ref } from "vue";
 import { getAssignDefence, type AssignDefence } from "../../../server";
 import { ElMessage } from "element-plus";
 
 // 单击实时告警事件
-export const clickEvent = async (
-  defenceAreaId: string,
-  warnInfoBorder: Ref<string>
-) => {
-  warnInfoBorder.value = "#f9ca24";
-
+export const clickEvent = async (defenceAreaId: string) => {
   // 发送获取指定防区请求
   try {
     const defenceData = await getAssignDefence(defenceAreaId);

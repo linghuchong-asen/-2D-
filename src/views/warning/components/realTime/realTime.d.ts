@@ -38,7 +38,7 @@ export interface IOWarn {
     correlate: number; // 关联防区
     bycorrelate: number; // 被关联防区
     isprompt: boolean; // 是否是提示
-  }[];
+  };
 }
 
 // 雷达目标告警，展示用的数据源

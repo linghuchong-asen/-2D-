@@ -4,12 +4,12 @@
  * @Author: yangsen
  * @Date: 2022-09-15 10:33:48
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-23 11:33:58
+ * @LastEditTime: 2022-10-12 09:37:48
  */
 
-import { getGlobalVar } from "@/utils";
 import type { BarValue } from "./components/device";
 import { http } from "@/utils/http";
+import { SocketServer } from "@/utils/websocket";
 
 // 防区状态饼图
 export interface DefenceValue {
@@ -21,49 +21,30 @@ export interface DefenceValue {
   working_num: number;
 }
 export const defenceValue = (param: DefenceValue): void => {
-  const token = localStorage.getItem("Authorization");
-  let baseWs!: string;
-  const instance = getGlobalVar();
-  if (instance) baseWs = instance.$wsBaseUrl;
-  if (token) {
-    const defenceWs = new WebSocket(baseWs + "/ws/area/report/", [token]);
-    defenceWs.onopen = () => {
-      console.log("防区状态ws链接成功");
-    };
-    defenceWs.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      Object.assign(param, data);
-    };
-    defenceWs.onclose = (event) => {
-      console.log(event.reason);
-    };
-  }
+  const cloneObject = {};
+  new SocketServer().connect(cloneObject, "/ws/area/report/");
+  Object.assign(param, cloneObject);
 };
 
 // 设备状态
 export const deviceValue = (param: BarValue) => {
-  const token = localStorage.getItem("Authorization");
-  let baseWs!: string;
-  const instance = getGlobalVar();
-  if (instance) baseWs = instance.$wsBaseUrl;
-  if (token) {
-    const deviceWs = new WebSocket(baseWs + "/count/device/all/", [token]);
-    deviceWs.onopen = () => {
-      console.log("设备状态ws链接成功");
-    };
-    deviceWs.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      Object.assign(param, {
-        radarTotal: data.radarinfo.total,
-        radarOffline: data.radarinfo.offline,
-        videoTotal: data.videocamer.total,
-        videoOffline: data.videocamer.offline,
-      });
-    };
-    deviceWs.onclose = (event) => {
-      console.log(event.reason);
-    };
-  }
+  const cloneObject = {
+    radarinfo: {
+      total: 0,
+      offline: 0,
+    },
+    videocamer: {
+      total: 0,
+      offline: 0,
+    },
+  };
+  new SocketServer().connect(cloneObject, "/count/device/all/");
+  Object.assign(param, {
+    radarTotal: cloneObject.radarinfo.total,
+    radarOffline: cloneObject.radarinfo.offline,
+    videoTotal: cloneObject.videocamer.total,
+    videoOffline: cloneObject.videocamer.offline,
+  });
 };
 
 // 获取所有防区，用于判断配置服务是否正常

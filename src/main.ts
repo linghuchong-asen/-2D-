@@ -12,7 +12,7 @@ import "./assets/main.css";
 
 const app = createApp(App);
 
-app.config.globalProperties.$wsBaseUrl = "ws://192.168.0.100:8099";
+app.config.globalProperties.$wsBaseUrl = "ws://192.168.0.100:5000";
 app.config.globalProperties.$httpBaseUrl = "http://192.168.0.100:8099";
 app.use(createPinia());
 app.use(router);

@@ -4,10 +4,11 @@
     chartId="defencePie"
     :option="pieOption"
     :key="defencePie"
+    :farther-mounted="mountedFlag"
   />
 </template>
 <script lang="ts" setup>
-import { ref, reactive, watchEffect } from "vue";
+import { ref, reactive, watchEffect, onMounted } from "vue";
 import EchartsComponent from "@/utils/EchartsComponent.vue";
 import { defenceValue, type DefenceValue } from "../server";
 import type { EChartsOption } from "echarts";
@@ -163,6 +164,11 @@ watchEffect(() => {
     pieValue.not_working_num +
     pieValue.alarming_num +
     pieValue.working_num;
+});
+/* 父组件mounted之后echarts再进行渲染 */
+const mountedFlag = ref(false);
+onMounted(() => {
+  mountedFlag.value = true;
 });
 </script>
 <style lang="less" scoped>

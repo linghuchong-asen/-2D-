@@ -2,7 +2,7 @@
   <li
     v-for="item in warnList"
     :key="item.alarmId"
-    class="warn"
+    :class="warnInfoBorder"
     @click="clickBorder(item.defenceAreaId)"
     @dblclick="dblClickBorder"
   >
@@ -15,7 +15,7 @@
         <span>告警时长:</span>
         <span>{{ (item as RadarWarnList).warnTimeLong }}秒</span>
       </div>
-      <div class="float warnTime">
+      <div class="float warnTime" v-if="!item.isRadar">
         <span>触发时间:</span>
         <span>{{ item.attackTime }}</span>
       </div>
@@ -27,7 +27,7 @@
   </li>
 </template>
 <script lang="ts" setup>
-import { ref, reactive, watchEffect, watch } from "vue";
+import { ref, reactive, watchEffect } from "vue";
 import type {
   RTData,
   WarnData,
@@ -35,15 +35,8 @@ import type {
   RadarWarnList,
   IOWarnList,
 } from "./realTime";
-import {
-  createRealTimeAlarmWs,
-  getAssignDefence,
-  createIOAlarmWs,
-  type AssignDefence,
-} from "../../server";
-import { ElMessage } from "element-plus";
+import { createRealTimeAlarmWs, createIOAlarmWs } from "../../server";
 import { clickEvent } from "./components/realTimeFun";
-import { http } from "@/utils/http";
 
 // websocket推送的雷达目标实时报警数据
 const warnData = reactive<RTData>({});
@@ -56,7 +49,7 @@ const warnList = reactive<RadarWarnList[] | IOWarnList[] | []>([]);
 // 告警id
 const alarmId = ref<string>("");
 // 用于判断websocket停止推送
-let stopPushFlag = false;
+const stopPushFlag = false;
 // warnData长度
 let warnDataLength: number;
 // 后端返回的非空值
@@ -65,6 +58,8 @@ let warnReal: WarnData;
 let deleteWarnTimer: ReturnType<typeof setTimeout>;
 // 读秒定时器
 let secondsTimer: ReturnType<typeof setTimeout>;
+// 间隔1秒没有推送，停止读秒
+let stopSecond: ReturnType<typeof setTimeout>;
 
 // 侦听warnData变化，对alarmId进行赋值
 watchEffect(() => {
@@ -114,7 +109,6 @@ watchEffect(() => {
               (value) => value.alarmId === item.alarmId
             );
             warnList.splice(index, 1);
-            console.log("删除一项");
           }
           // 间隔1秒没有推送，停止读秒
           if (timeInterval > 1000) {
@@ -127,12 +121,20 @@ watchEffect(() => {
       }
     }
 
+    /* 当没有告警推送，间隔1秒没有推送，停止读秒 */
+    clearTimeout(stopSecond);
+    stopSecond = setTimeout(() => {
+      radarWarnList.forEach((value) => {
+        value.secondsIncreaseFlag = false;
+      });
+    }, 1000);
+
     // 告警删除逻辑：2.全部告警停止推送，把warnList数组清空
-    clearTimeout(deleteWarnTimer);
+    /* clearTimeout(deleteWarnTimer);
     deleteWarnTimer = setTimeout(() => {
       stopPushFlag = true;
       warnList.splice(0, radarWarnList.length);
-    }, 1000 * 5);
+    }, 1000 * 5); */
   }
 });
 
@@ -164,7 +166,7 @@ watchEffect(() => {
   const dataLength = Object.keys(IOWarnData).length;
   console.log("雷达目标告警是否会触发IO设备告警");
   if (dataLength !== 0) {
-    const IOWarnRealData = (IOWarnData as IOWarn).AlarmInfos[0];
+    const IOWarnRealData = (IOWarnData as IOWarn).AlarmInfos;
     const ioWarnList = warnList as IOWarnList[];
     const hasId = warnList.some(
       (item) => item.alarmId === IOWarnRealData.obj_id
@@ -195,14 +197,19 @@ const trackShows = ref(true);
 const targetTracking = ref(false);
 
 // 告警信息边框颜色 #f9ca24 #ff4757
-const warnInfoBorder = ref<string>("#106898");
+const warnInfoBorder = reactive<string[]>(["warn"]);
+
 // 单击告警信息，出现黄色边框；播放对应雷达关联相机的视频
 const clickBorder = async (defenceAreaId: string) => {
-  clickEvent(defenceAreaId, warnInfoBorder);
+  warnInfoBorder.splice(0, warnInfoBorder.length).push("warn", "clickBorder");
+  clickEvent(defenceAreaId);
 };
 
 // 双击告警信息，出现红色边框
-const dblClickBorder = () => (warnInfoBorder.value = "#ff4757");
+const dblClickBorder = () =>
+  warnInfoBorder
+    .splice(0, warnInfoBorder.length)
+    .push("warn", "dblClickBorder");
 </script>
 <style lang="less" scoped>
 .float {
@@ -221,7 +228,6 @@ const dblClickBorder = () => (warnInfoBorder.value = "#ff4757");
   background: linear-gradient(135deg, #abdcff, #0396ff);
   font-size: 0.875rem;
   cursor: pointer;
-  border: 2px solid v-bind(warnInfoBorder);
 
   .warnTime {
     margin-left: 0.5rem;
@@ -237,5 +243,11 @@ const dblClickBorder = () => (warnInfoBorder.value = "#ff4757");
       color: #cc0250;
     }
   }
+}
+.clickBorder {
+  border: 2px solid #f9ca24;
+}
+.dblClickBorder {
+  border: 2px solid #ff4757;
 }
 </style>

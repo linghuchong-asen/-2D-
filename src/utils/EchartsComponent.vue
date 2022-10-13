@@ -3,13 +3,16 @@
 </template>
 
 <script setup lang="ts">
-import { toRefs, onUnmounted, onMounted } from "vue";
+import { toRefs, onUnmounted, onMounted, onUpdated } from "vue";
 import * as echarts from "echarts";
 import type { EChartsOption, ECharts } from "echarts";
 // 接收父组件传值
 const props = defineProps<{
   chartId: string;
   option: unknown;
+  /* FIXME:这是一个完善，有些父元素是Dialog这种弹窗，弹窗是element用渲染函数生成的DOM元素添加进body中，
+  FIXME:是异步添加的，所以要等待父组件添加成功之后再进行echarts绘制 */
+  fartherMounted: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleClick?: (params: any) => void;
 }>();
@@ -19,6 +22,7 @@ const props = defineProps<{
    .value是实际的值
 */
 const id = toRefs(props).chartId;
+const fartherMounted = toRefs(props).fartherMounted;
 const option = toRefs(props).option.value as EChartsOption;
 let chart: ECharts | null;
 
@@ -41,7 +45,7 @@ const handleResize = () => {
 // 页面渲染成功及id变化时，绘制图表;
 onMounted(() => {
   const chartIdDiv = document.getElementById(id.value);
-  if (chartIdDiv) {
+  if (chartIdDiv && fartherMounted.value) {
     chart = echarts.init(chartIdDiv); // 创建一个echarts实例
     if (option) renderChart(chart, option);
   }

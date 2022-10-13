@@ -1,12 +1,13 @@
 <!--
- * @Description: 防区管理
+ * @Description: 防区管理，包括查询表单和展示表格
  * @Author: yangsen
  * @Date: 2022-09-28 11:12:20
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-30 16:51:56
+ * @LastEditTime: 2022-10-13 09:43:33
 -->
 <template>
   <div class="defenceContent">
+    <!-- 查询表单 -->
     <div class="query">
       <el-form :inline="true" :model="queryFormData" class="form">
         <el-form-item label="防区分组:">
@@ -19,8 +20,8 @@
             <el-option
               v-for="(item, index) in defenceGroup"
               :key="index"
-              label="南门防区"
-              value="shanghai"
+              :label="item.name"
+              :value="item.id"
             />
           </el-select>
         </el-form-item>
@@ -104,17 +105,9 @@
               class="defenceDetail"
               effect="light"
               style="margin-left: 10px"
-              @click="paramInfoClick"
+              @click="paramInfoClick(scope.row.defenceNumber)"
               >参数信息
-              <el-dialog
-                v-model="paramInfoVisible"
-                title="Warning"
-                width="30%"
-                center
-              >
-                参数详情弹窗
-              </el-dialog></el-tag
-            >
+            </el-tag>
           </template>
         </el-table-column>
       </el-table>
@@ -131,44 +124,55 @@
       />
     </div>
   </div>
+  <!-- 防区计划弹窗 -->
   <div class="defenceDetailDialog">
     <el-dialog
       v-model="planVisible"
       title="防区计划"
       width="30%"
-      align-center
-      :modal="false"
       center
+      :modal="true"
     >
-      <DefencePlanEcharts :plan="plan" />
+      <DefencePlanEcharts :plan="plan" :key="planKey" />
+    </el-dialog>
+  </div>
+  <!-- 参数信息弹窗 -->
+  <div class="defenceDetailDialog paramInfo">
+    <el-dialog
+      v-model="paramInfoVisible"
+      title="参数信息"
+      width="15%"
+      center
+      :modal="true"
+    >
+      <DefenceParamDetail :params="paramsInfoData" />
     </el-dialog>
   </div>
 </template>
 <script lang="ts" setup>
-import {
-  reactive,
-  watchEffect,
-  ref,
-  type Ref,
-  unref,
-  toRaw,
-  toRefs,
-} from "vue";
-import IconFont from "@/utils/IconFont.vue";
+import { reactive, watchEffect, ref, toRefs } from "vue";
 import {
   getDefence,
   type DefenceParam,
   type Defence,
   type Result,
 } from "../server";
-import { ElMessage, menuItemEmits } from "element-plus";
-import type { stringify } from "querystring";
-import { isObject } from "element-plus/es/utils";
+import { ElMessage } from "element-plus";
 import DefencePlanEcharts from "./defenceDetailComponent/DefencePlanEcharts.vue";
-import { getDefencePlan, type DefencePlan } from "../server";
+import DefenceParamDetail from "./defenceDetailComponent/DefenceParamDetail.vue";
+import {
+  getDefencePlan,
+  getAssignDefence,
+  getAssignCamera,
+  type DefencePlan,
+  type DefenceGroup,
+  type AssignDefence,
+  type AssignCamera,
+} from "../server";
+import type { DefenceInfo } from "./defenceManagement";
 
 const props = defineProps<{
-  group: string[];
+  group: DefenceGroup[];
 }>();
 const defenceGroup = toRefs(props).group;
 
@@ -180,7 +184,15 @@ const tableSource = reactive<
     type: number; // 防区类型
     isWorking: boolean; // 布撤防
     isByPass: boolean; // 是否旁路
-    planned: string | null;
+    planned: number | null; // 防区计划
+    group: string; // 防区分组名称
+    inputDevice: string; // 输入设备
+    delayTime: number; // 延时时间
+    triggerType: number; // 触发类型
+    linkDefenceId: string; // 关联防区id
+    linkCamera: string[]; // 联动相机
+    traceCamera: string[]; // 关联相机
+    linkDevice: string[]; // 联动设备
   }[]
 >([]);
 
@@ -242,6 +254,14 @@ const onSubmit = async () => {
           isWorking: item.is_working,
           isByPass: item.is_bypass,
           planned: item.planned,
+          group: item.alarmarea_group_name,
+          inputDevice: item.devname,
+          delayTime: item.delaytime,
+          triggerType: item.touch_eventflag,
+          linkDefenceId: item.linkarea,
+          linkCamera: item.linkcamera.map((item) => item.id.toString()),
+          traceCamera: item.tracecamera.map((item) => item.toString()),
+          linkDevice: item.devgroupobj.map((item) => item.name),
         });
       });
       totalCount.value = (data as Defence).count;
@@ -265,13 +285,7 @@ interface TableColumn {
   defenceOperation: string[];
 }
 // 根据防区状态显示不同的背景色
-const tableRowClassName = ({
-  row,
-  rowIndex,
-}: {
-  row: TableColumn;
-  rowIndex: number;
-}) => {
+const tableRowClassName = ({ row }: { row: TableColumn; rowIndex: number }) => {
   if (row.defenceState === "布防中") {
     return "working-row";
   } else if (row.defenceState === "已撤防") {
@@ -290,8 +304,9 @@ const tableData = reactive<
     defenceOperation: string[];
   }[]
 >([]);
-// 根据后端数据更新表格数据源
-watchEffect(() => {
+
+watchEffect(async () => {
+  /* ------根据后端数据更新表格数据源------- */
   // 先清空table的数据源
   tableData.splice(0, tableData.length);
   tableSource.forEach((item) => {
@@ -354,7 +369,6 @@ const totalCount = ref(0);
 
 /* 点击表格操作事件 */
 const operation = (param: string) => {
-  console.log(param);
   switch (param) {
     case "布防":
       break;
@@ -376,32 +390,63 @@ const handleCurrentChange = () => {
 /* 防区详情 */
 // 防区计划弹窗显隐属性
 const planVisible = ref(false);
+// 防区计划弹窗key
+const planKey = ref(1);
 // 参数信息显隐属性
 const paramInfoVisible = ref(false);
+
 // 防区计划
 const plan = reactive<
   {
     timeTag: number;
     startTime: string;
     endTime: string;
+    isHas: boolean;
   }[]
->([]);
+>([
+  {
+    timeTag: -1,
+    startTime: "",
+    endTime: "",
+    isHas: false,
+  },
+]);
+
+// 参数信息
+const paramsInfoData = reactive<DefenceInfo>({
+  name: "", // 防区名称
+  group: "", // 分组名称
+  type: -1, // 防区类型
+  inputDevice: "", // 输入设备
+  delayTime: -1, // 延时时间
+  triggerType: "", // 关联防区用到的触发类型
+  linkDefence: "", // 关联防区名称
+  linkCamera: [""], // 联动相机
+  traceCamera: [""], // 关联相机
+  linkDevice: [""], // 联动设备
+});
 
 // 防区计划点击事件
-const planClick = async (param: string | null) => {
+const planClick = async (param: string) => {
   planVisible.value = !planVisible.value;
   const planned = tableSource.find((item) => item.number === param)?.planned;
+
+  planKey.value += 1;
+
   // 请求后端数据
-  if (typeof planned === "string") {
+  if (planned !== null && planned !== undefined) {
+    plan.splice(0, plan.length);
     try {
-      const planData = await getDefencePlan(planned);
+      const planData = await getDefencePlan(planned.toString());
       const { data, status } = planData;
       if (status === 200) {
+        planKey.value += 1;
         (data as DefencePlan).planneds.forEach((item) => {
           plan.push({
             timeTag: item.timetag,
             startTime: item.starttime,
-            endTime: item.endtimne,
+            endTime: item.endtime,
+            isHas: true,
           });
         });
       } else {
@@ -413,11 +458,100 @@ const planClick = async (param: string | null) => {
     } catch (error) {
       console.error("获取指定防区计划出错" + error);
     }
+  } else {
+    plan.splice(0, plan.length);
+    plan.push({
+      timeTag: -1,
+      startTime: "",
+      endTime: "",
+      isHas: false,
+    });
   }
 };
 // 参数信息点击事件
-const paramInfoClick = () => {
+const paramInfoClick = async (defenceId: string) => {
   paramInfoVisible.value = !paramInfoVisible.value;
+  const currentDefence = tableSource.find((item) => item.number === defenceId);
+  if (currentDefence !== undefined) {
+    paramsInfoData.name = currentDefence.name;
+    paramsInfoData.group = currentDefence.group;
+    paramsInfoData.inputDevice = currentDefence.inputDevice;
+    paramsInfoData.delayTime = currentDefence.delayTime;
+    switch (currentDefence.triggerType) {
+      case 0:
+        paramsInfoData.triggerType = "顺序触发";
+        break;
+      case 1:
+        paramsInfoData.triggerType = "同时触发";
+        break;
+      case 2:
+        paramsInfoData.triggerType = "触发时间间隔内";
+        break;
+      case 3:
+        paramsInfoData.triggerType = "触发时间间隔外";
+        break;
+      default:
+        break;
+    }
+    // 根据关联防区id获取防区名称
+    const linkId = currentDefence.linkDefenceId;
+    if (linkId) {
+      try {
+        const assignDefenceData = await getAssignDefence(linkId);
+        const { data, status } = assignDefenceData;
+        if (status === 200) {
+          const successData = data as AssignDefence;
+          paramsInfoData.linkDefence = successData.name;
+        } else {
+          const errorData = data as { detail: string };
+          ElMessage({ type: "error", message: errorData.detail });
+        }
+      } catch (error) {
+        console.error("获取指定防区出错" + error);
+      }
+    } else {
+      paramsInfoData.linkDefence = "无";
+    }
+
+    /*  -------------根据相机id获取相机名称------------------------ */
+    // 获取指定相机
+    const getLinkCameraName = async (id: string, nameArr: string[]) => {
+      try {
+        const cameraData = await getAssignCamera(id);
+        const { data, status } = cameraData;
+        if (status === 200) {
+          const successData = data as AssignCamera;
+          nameArr.push(successData.name);
+        } else {
+          const errorData = data as { detail: string };
+          ElMessage({ type: "error", message: errorData.detail });
+        }
+      } catch (error) {
+        console.error("获取指定相机出错" + error);
+      }
+    };
+
+    // 关联相机id数组
+    const linkCameraArr = currentDefence.linkCamera;
+    // 关联相机名称数组
+    const linkCameraNameArr = reactive<string[]>([]);
+    linkCameraArr.forEach((item) => {
+      getLinkCameraName(item, linkCameraNameArr);
+    });
+    // 联动相机id数组
+    const traceCameraArr = currentDefence.traceCamera;
+    // 联动相机名称数组
+    const traceCameraNameArr = reactive<string[]>([]);
+    traceCameraArr.forEach((item) => {
+      getLinkCameraName(item, traceCameraNameArr);
+    });
+    paramsInfoData.linkCamera = linkCameraNameArr;
+    paramsInfoData.traceCamera = traceCameraNameArr;
+    // 关联设置
+    paramsInfoData.linkDevice = currentDefence.linkDevice;
+    // 防区类型
+    paramsInfoData.type = currentDefence.type;
+  }
 };
 </script>
 <style lang="less" scoped>

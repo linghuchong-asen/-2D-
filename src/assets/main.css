@@ -91,9 +91,13 @@ li {
 .exhibition .el-input__inner {
   color: #38c3fd !important;
 }
+/* 防区管理下的防区计划 */
 .defenceDetailDialog .el-dialog {
-  margin-top: 18.75rem !important;
+  background-color: rgba(9, 34, 68, 1) !important;
 }
+/* .defenceDetailDialog .el-dialog {
+  margin-top: 18.75rem !important;
+} */
 .defenceDetailDialog .el-dialog__headerbtn {
   display: block !important;
 }
@@ -104,8 +108,32 @@ li {
   color: #38c3fd !important;
 }
 .defenceDetailDialog .el-dialog__body {
-  height: 31.25rem;
+  height: 18.75rem;
 }
+/* 防区管理下的参数信息 */
+.paramInfo {
+  color: #38c3fd !important;
+}
+.paramInfo .el-dialog__body {
+  height: auto;
+  color: #38c3fd !important;
+}
+.paramInfo .paddingBottom {
+  padding-bottom: 5px;
+}
+.paramInfo .paramType {
+  border: 1px solid #2280ae;
+  border-radius: 5px;
+  padding-left: 5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.paramInfo .linkDevice {
+  border: 1px solid #2280ae;
+  padding-left: 5px;
+  border-radius: 5px;
+}
+
 /* ------------------视屏墙------------------------- */
 .wall-container *,
 .wall-container ::after,

@@ -4,22 +4,25 @@
  * @Author: yangsen
  * @Date: 2022-09-08 21:19:02
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-28 09:51:13
+ * @LastEditTime: 2022-10-13 11:35:09
  */
-import { getGlobalVar } from "@/utils/index";
+
 import { http } from "@/utils/http";
 import type { RTData } from "./components/realTime/realTime";
 
 // 实时报警websocket连接
 export const createRealTimeAlarmWs = (param: RTData) => {
   const token = localStorage.getItem("Authorization");
-  let baseWs!: string;
+  /* let baseWs!: string;
   const instance = getGlobalVar();
-  if (instance) baseWs = instance.$wsBaseUrl;
+  if (instance) baseWs = instance.$wsBaseUrl; */
 
   if (token) {
     // 雷达目标告警
-    const targetWs = new WebSocket(baseWs + "/trgt/alarm/trgtalarm/", [token]);
+    const targetWs = new WebSocket(
+      "ws://192.168.0.100:8099" + "/trgt/alarm/trgtalarm/",
+      [token]
+    );
     targetWs.onopen = () => {
       console.log("目标告警ws链接成功");
     };
@@ -32,24 +35,30 @@ export const createRealTimeAlarmWs = (param: RTData) => {
     };
   }
 };
+// TODO:为了解决websocket，暂时先用单独的websocket链接
+/* export const createRealTimeAlarmWs = (param: RTData) => {
+  const cloneObject = {};
+  new SocketServer().connect(cloneObject, "/trgt/alarm/trgtalarm/");
+  Object.assign(param, cloneObject);
+}; */
 
 // IO报警websocket连接
 export const createIOAlarmWs = (param: RTData) => {
   const token = localStorage.getItem("Authorization");
-  let baseWs!: string;
+  /* let baseWs!: string;
   const instance = getGlobalVar();
-  if (instance) baseWs = instance.$wsBaseUrl;
+  if (instance) baseWs = instance.$wsBaseUrl; */
 
   if (token) {
-    const targetWs = new WebSocket(baseWs + "/ws/IOSwitchAlarm/alarm/", [
-      token,
-    ]);
+    const targetWs = new WebSocket(
+      "ws://192.168.0.100:8099" + "/ws/IOSwitchAlarm/alarm/",
+      [token]
+    );
     targetWs.onopen = () => {
       console.log("IO设备告警ws链接成功");
     };
     targetWs.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data);
       Object.assign(param, data);
     };
     targetWs.onclose = (event) => {
@@ -57,6 +66,10 @@ export const createIOAlarmWs = (param: RTData) => {
     };
   }
 };
+// TODO:为了解决websocket，暂时先用单独的websocket链接
+/* export const createIOAlarmWs = (param: RTData) => {
+  new SocketServer().connect(param, "/ws/IOSwitchAlarm/alarm/");
+}; */
 
 // 获取指定防区
 export interface AssignDefence {

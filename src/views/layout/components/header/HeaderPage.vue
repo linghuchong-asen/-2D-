@@ -4,7 +4,7 @@
  * @Author: yangsen
  * @Date: 2022-09-07 17:29:20
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-30 11:29:06
+ * @LastEditTime: 2022-10-12 13:37:20
 -->
 <template>
   <div class="box1">
@@ -81,7 +81,7 @@
           ></IconFont>
         </div>
       </template>
-      <DefenceManagement :group="defenceGroup"></DefenceManagement>
+      <DefenceManagement :group="groupSource"></DefenceManagement>
     </el-dialog>
   </div>
 </template>
@@ -114,7 +114,7 @@ const handleSelect = (key: string) => {
 
 /* ------------------防区管理-------------------------- */
 // 防区分组
-const defenceGroup = reactive<string[]>([]);
+const groupSource = reactive<DefenceGroup[]>([]);
 // 防区查询对话框显示隐藏
 const denfenceQueryVisible = ref(false);
 const changeDefenceQueryVisible = async () => {
@@ -125,7 +125,12 @@ const changeDefenceQueryVisible = async () => {
     if (status === 200) {
       const successData = data as DefenceGroup[];
       successData.forEach((item) => {
-        defenceGroup.push(item.name);
+        groupSource.push({
+          alarmareas: item.alarmareas,
+          descr: item.descr,
+          id: item.id,
+          name: item.name,
+        });
       });
     } else {
       const errorData = data as { detail: string };
@@ -146,16 +151,6 @@ const logout = () => {
   localStorage.removeItem("refresh");
   router.push({ name: "login" });
 };
-
-onMounted(() => {
-  console.log("防区管理组件onMounted");
-});
-onUpdated(() => {
-  console.log("防区管理组件onUpdated");
-});
-onUnmounted(() => {
-  console.log("防区管理组件onUnmounted");
-});
 </script>
 <style scoped lang="less">
 .box1 {
