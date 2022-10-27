@@ -3,7 +3,7 @@
  * @Author: yangsen
  * @Date: 2022-09-09 11:55:25
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-29 08:46:06
+ * @LastEditTime: 2022-10-26 16:59:35
 -->
 <template>
   <div class="stateBox">
@@ -73,9 +73,9 @@ const mapTimeout = (ip: string, flag: Ref<boolean>) => {
   }, 1000);
 };
 // 视频服务
-// videoTimeout("192.168.0.100:9696", videoFlag);
+videoTimeout("192.168.0.100:9696", videoFlag);
 // 地图服务
-// mapTimeout("192.168.0.100:8889", mapFlag);
+mapTimeout("192.168.0.100:8889", mapFlag);
 // 配置服务
 (async () => {
   try {

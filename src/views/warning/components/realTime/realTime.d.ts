@@ -49,8 +49,9 @@ export interface RadarWarnList {
   alarmId: string; // 告警id
   secondsIncreaseFlag: boolean; // 是否增加读秒标识
   lastTime: number; // 最后推送时间，用于5秒未推送删除
-  defenceAreaId: string; // 防区id
+  defenceAreaId: number; // 防区id
   attackTime: string; // 触发时间
+  alarmType: number; // 0 雷达告警 1海防  2.io告警
 }
 
 // IO设备告警，展示用的数据源
@@ -58,6 +59,18 @@ export interface IOWarnList {
   isRadar: boolean; // 是否为雷达目标告警
   warnRange: string; // 防区名称
   alarmId: string; // 告警id
-  defenceAreaId: string; // 防区id
+  defenceAreaId: number; // 防区id
   attackTime: string; // 触发时间
+  alarmType: number; // 0 雷达告警 1海防  2.io告警
+}
+
+// 告警处置表单
+export interface HandleWarnData {
+  cfmtype: string; // 处置类型 忽略/人工处置
+  cfmdesc: string; // 处置描述
+  type: number; //  处置方式 1：消音 2:消警
+  cfmtime: string; // 处置时间
+  alarmtype: string; // 告警类型 0 雷达告警 1海防  2.io告警
+  obj_id: string; // 告警编号
+  area: number; // 防区id
 }

@@ -3,83 +3,39 @@
  * @Author: yangsen
  * @Date: 2022-09-29 13:25:57
  * @LastEditors: yangsen
- * @LastEditTime: 2022-10-11 21:08:26
+ * @LastEditTime: 2022-10-26 16:49:11
  */
 
 import { http } from "@/utils/http";
+import type {
+  DefenceAll,
+  DefenceGroup,
+  Defence,
+  DefenceParam,
+  AssignDefence,
+  AssignCamera,
+  ClothRemovalParams,
+  ByPassParams,
+  WarnHistoryParams,
+  WarnHistoryData,
+  FeatureData,
+  DeviceWarn,
+  DeviceWarnParams,
+  OperationLogParams,
+  OperationLogData,
+  RelieveParams,
+  RelieData,
+  SetRelieveParams,
+  SetRelieveData,
+} from "./serverType";
 
 /* -----------------查询防区分组------------------------------- */
-export interface DefenceGroup {
-  alarmareas: string[];
-  descr: string;
-  id: number;
-  name: string;
-}
 
 export const getDefenceGroup = () =>
-  http<DefenceGroup[] | { detail: string }>("/API/V0.1/Area/AlarmAreaGroup/");
+  http<DefenceGroup | { detail: string }>("/API/V0.1/Area/AlarmAreaGroup/");
 
 /* -------------表单查询防区------------------ */
-export interface Defence {
-  count: number;
-  next: null;
-  previous: null;
-  results: Result[];
-}
 
-export interface Result {
-  alarmarea_group_name: string; // 防区分组名称
-  bypass_end: null | string;
-  bypass_start: null | string;
-  counttime: number;
-  delay: number;
-  delaytime: number;
-  delaytype: number;
-  dev: string;
-  devgroup: number[];
-  devgroupobj: { id: number; name: string }[];
-  devname: string;
-  devtype: number;
-  event_flag: number;
-  func_state: number;
-  height: number;
-  id: number;
-  intervaltime: number;
-  is_bypass: boolean;
-  is_cover: boolean;
-  is_delete: boolean;
-  is_failure: boolean;
-  is_multitype: boolean;
-  is_working: boolean;
-  level: number;
-  linkarea: string;
-  linkcamera: { id: number; preset: string }[];
-  linktype: number;
-  logictype: number;
-  name: string;
-  no: string;
-  planned: null | number;
-  region: number;
-  shape: Shape;
-  touch_eventflag: number;
-  tracecamera: number[];
-  type: number;
-}
-
-export interface Shape {
-  coordinates: Array<Array<number[]>>;
-  type: string;
-}
-
-export interface DefenceParam {
-  alarmarea_group__id?: number;
-  name?: string;
-  types?: number;
-  is_working?: number;
-  is_bypass?: number;
-  page: number;
-  page_size: string;
-}
 export const getDefence = (params: DefenceParam) =>
   http<Defence | { detail: string }>("/API/V0.1/Area/AlarmArea/", { params });
 
@@ -100,95 +56,71 @@ export const getDefencePlan = (param: string) =>
   http<DefencePlan | { detail: string }>(`API/V0.1/Area/Planned/${param}/`);
 
 /* ------------获取指定防区-------------- */
-export interface AssignDefence {
-  alarmarea_group: null;
-  alarmarea_group_name: string;
-  bypass_end: null;
-  bypass_start: null;
-  counttime: number;
-  delay: number;
-  delaytime: number;
-  delaytype: number;
-  devgroup: string[];
-  devgroupobj: string[];
-  devid: number;
-  devname: string;
-  devtype: number;
-  event_flag: number;
-  func_state: number;
-  height: number;
-  id: number;
-  intervaltime: number;
-  is_bypass: boolean;
-  is_cover: boolean;
-  is_delete: boolean;
-  is_failure: boolean;
-  is_multitype: boolean;
-  is_working: boolean;
-  linkarea: null;
-  linkcamera: string[];
-  linktype: number;
-  logictype: number;
-  name: string;
-  no: string;
-  planned: null;
-  planned_name: string;
-  region: number;
-  shape: Shape;
-  touch_eventflag: number;
-  tracecamera: string[];
-  type: number;
-}
 
-export interface Shape {
-  coordinates: Array<Array<number[]>>;
-  type: string;
-}
 export const getAssignDefence = (defenceId: string) =>
   http<AssignDefence | { detail: string }>(
     `/API/V0.1/Area/AlarmArea/${defenceId}/`
   );
 
 /* ----------获取指定摄像机---------------- */
-export interface AssignCamera {
-  camera_pwd: string;
-  camera_uname: string;
-  channel: string;
-  element: number;
-  factory: string;
-  from_nvr: null;
-  from_nvr_channel: string;
-  height: number;
-  horizonscope: number;
-  id: number;
-  ip: string;
-  is_delete: boolean;
-  lat: number;
-  lon: number;
-  max_pan: number;
-  max_tilt: number;
-  max_zoom: number;
-  memo: string;
-  min_tilt: number;
-  name: string;
-  north_angle: number;
-  offset_pan: number;
-  offset_tilt: number;
-  person_phone: string;
-  person_uname: string;
-  port: string;
-  position_msg: string;
-  region: number;
-  rtsp_channel: string;
-  rtsp_history_url: string;
-  rtsp_port: string;
-  rtsp_url: string;
-  timestamp: string;
-  type: number;
-  vm_name: string;
-  vm_no: string;
-}
+
 export const getAssignCamera = (cameraId: string) =>
   http<AssignCamera | { detail: string }>(
     `/API/V0.1/Onvif/BallheadCamera/${cameraId}/`
   );
+
+/* ------------设置布撤防----------------- */
+
+export const setClothRemoval = (params?: ClothRemovalParams) =>
+  http(`/API/V0.1/Area/SetIsWorking/${params?.id}/`, {
+    method: "post",
+    params: {
+      is_cover: params?.is_cover,
+      is_working: params?.is_working,
+      password: params?.password,
+    },
+  });
+
+/* ------------设置旁路----------------- */
+
+export const setByPass = (params: ByPassParams) =>
+  http(`/API/V0.1/Area/SetBypass/${params.id}/`, {
+    method: "post",
+    params: {
+      bypass_end: params.bypassEnd,
+      bypass_start: params.bypassStart,
+      is_bypass: params.isBypass,
+      password: params.password,
+    },
+  });
+
+/* ---------获取所有防区--------- */
+export const getDefenceAll = () =>
+  http<DefenceAll>("/API/V0.1/Area/AlarmArea/");
+
+/* ----------历史告警查询----------- */
+export const getWarnHistory = (params?: WarnHistoryParams) =>
+  http<WarnHistoryData>("/API/V0.1/Area/AlarmInfo/", { params });
+
+/* ----------获取全部要素------------- */
+export const getAllFeature = () =>
+  http<FeatureData>("/API/V0.1/JMSceneConfigService/GetElementThree/");
+
+/* -----------获取设备告警------------------ */
+export const getDeviceWarn = (params?: DeviceWarnParams) =>
+  http<DeviceWarn>("/API/V0.1/Area/DevAlarm/", { params });
+
+/* ------------获取操作记录---------------------- */
+export const getOperationLog = (params?: OperationLogParams) =>
+  http<OperationLogData>("/API/V0.1/LogRecord/OperationLog/", { params });
+
+/* ------------获取交接班信息---------------- */
+export const getRelieLog = (params?: RelieveParams) =>
+  http<RelieData>("/API/V0.1/Account/ShiftRecords/", { params });
+
+/* --------------交接班-------------------- */
+export const setRelieve = (params?: SetRelieveParams) =>
+  http<SetRelieveData>("/API/V0.1/Account/ShiftRecords/", {
+    method: "post",
+    params,
+  });

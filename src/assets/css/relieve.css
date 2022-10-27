@@ -1,0 +1,33 @@
+.relieve .el-dialog__close {
+  display: none;
+}
+.relieve .el-dialog {
+  width: 30rem;
+  height: 26.875rem;
+  background-image: url("/image/login_bg.png");
+  background-size: 100% 100%;
+}
+.relieve .el-dialog .myHeader {
+  color: white;
+}
+.relieve .el-dialog .myHeader h4 {
+  width: 200px;
+  font-size: 30px;
+  flex-grow: 2;
+  text-align: center;
+  transform: translate(50%, 200%);
+  font-style: italic;
+}
+.relieve .demo-ruleForm {
+  position: absolute !important;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.relieve .demo-ruleForm .el-input__wrapper {
+  background-color: #fff !important;
+  border-radius: 15px !important;
+}
+.relieve .demo-ruleForm .el-input__inner {
+  color: #262626;
+}

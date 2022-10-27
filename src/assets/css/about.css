@@ -1,0 +1,20 @@
+.about .el-dialog__close {
+  display: none;
+}
+.about .el-dialog {
+  height: 240px;
+  background-image: url("/image/pop2.png");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  box-shadow: none;
+  color: #97d0f6;
+}
+.about .el-dialog__body {
+  width: 250px;
+  margin-left: 25px;
+  margin-top: 20px;
+  background-color: #18376e;
+  color: #97d0f6;
+}

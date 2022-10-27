@@ -1,0 +1,24 @@
+.warnQuery .el-dialog__close {
+  display: none;
+}
+.warnQuery .el-dialog {
+  height: 480px;
+  width: 500px;
+  background-image: url("/image/mapbg_proprety_layer.png");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  box-shadow: none;
+  color: #97d0f6;
+  /* padding: 20px 20px; */
+}
+.warnQuery .el-dialog__body {
+  width: 420px;
+  margin: 20px auto;
+  background-color: #18376e;
+  height: 320px;
+}
+.warnQuery .el-form-item__label {
+  color: #97d0f6;
+}

@@ -10,3 +10,21 @@ export interface DefenceInfo {
   traceCamera: string[]; // 关联相机
   linkDevice: string[]; // 联动设备
 }
+
+interface TableDataItem {
+  defenceName: string;
+  defenceNumber: string;
+  defenceType: string;
+  defenceState: string;
+  defenceOperation: string[];
+}
+
+export type TableData = {
+  defenceName: string;
+  defenceNumber: string;
+  defenceType: string;
+  defenceState: string;
+  defenceOperation: string[];
+  hasOperation: boolean; // 当防区状态为告警中，已失效；则没有防区操作按钮
+  defenceId: number;
+}[];

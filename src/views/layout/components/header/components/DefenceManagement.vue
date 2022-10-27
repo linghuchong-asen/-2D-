@@ -3,7 +3,7 @@
  * @Author: yangsen
  * @Date: 2022-09-28 11:12:20
  * @LastEditors: yangsen
- * @LastEditTime: 2022-10-13 09:43:33
+ * @LastEditTime: 2022-10-26 15:02:37
 -->
 <template>
   <div class="defenceContent">
@@ -65,6 +65,7 @@
         </el-form-item>
       </el-form>
     </div>
+    <!-- 展示表格 -->
     <div class="exhibition">
       <el-table
         :data="tableData"
@@ -77,20 +78,32 @@
         <el-table-column prop="defenceState" label="防区状态" width="100" />
         <el-table-column prop="defenceOperation" label="防区操作" width="200">
           <template #default="scope">
-            <el-button
-              :type="scope.row.defenceOperation[2]"
-              size="small"
-              round
-              @click="operation(scope.row.defenceOperation[0])"
-              >{{ scope.row.defenceOperation[0] }}</el-button
-            >
-            <el-button
-              :type="scope.row.defenceOperation[3]"
-              size="small"
-              round
-              @click="operation(scope.row.defenceOperation[1])"
-              >{{ scope.row.defenceOperation[1] }}</el-button
-            >
+            <div v-if="scope.row.hasOperation">
+              <el-button
+                :type="scope.row.defenceOperation[2]"
+                size="small"
+                round
+                @click="
+                  operationFun(
+                    scope.row.defenceOperation[0],
+                    scope.row.defenceId
+                  )
+                "
+                >{{ scope.row.defenceOperation[0] }}</el-button
+              >
+              <el-button
+                :type="scope.row.defenceOperation[3]"
+                size="small"
+                round
+                @click="
+                  operationFun(
+                    scope.row.defenceOperation[1],
+                    scope.row.defenceId
+                  )
+                "
+                >{{ scope.row.defenceOperation[1] }}</el-button
+              >
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="防区详情">
@@ -131,7 +144,8 @@
       title="防区计划"
       width="30%"
       center
-      :modal="true"
+      :modal="false"
+      draggable
     >
       <DefencePlanEcharts :plan="plan" :key="planKey" />
     </el-dialog>
@@ -143,20 +157,36 @@
       title="参数信息"
       width="15%"
       center
-      :modal="true"
+      :modal="false"
+      draggable
     >
       <DefenceParamDetail :params="paramsInfoData" />
+    </el-dialog>
+  </div>
+  <!-- 防区操作弹窗 -->
+  <div class="byPassDialog">
+    <el-dialog
+      v-model="operationVisible"
+      width="20%"
+      :title="'设置' + operationType"
+      :modal="false"
+      destroy-on-close
+      draggable
+    >
+      <DefenceOperation
+        :id="operationDefenceId"
+        :type="operationType"
+        @visible="
+          () => {
+            operationVisible = false;
+          }
+        "
+      />
     </el-dialog>
   </div>
 </template>
 <script lang="ts" setup>
 import { reactive, watchEffect, ref, toRefs } from "vue";
-import {
-  getDefence,
-  type DefenceParam,
-  type Defence,
-  type Result,
-} from "../server";
 import { ElMessage } from "element-plus";
 import DefencePlanEcharts from "./defenceDetailComponent/DefencePlanEcharts.vue";
 import DefenceParamDetail from "./defenceDetailComponent/DefenceParamDetail.vue";
@@ -164,15 +194,26 @@ import {
   getDefencePlan,
   getAssignDefence,
   getAssignCamera,
-  type DefencePlan,
-  type DefenceGroup,
-  type AssignDefence,
-  type AssignCamera,
+  getDefence,
 } from "../server";
-import type { DefenceInfo } from "./defenceManagement";
+import type {
+  DefenceGroup,
+  AssignDefence,
+  AssignCamera,
+  DefencePlan,
+  DefenceParam,
+  Defence,
+  Result,
+} from "../serverType";
+import type { DefenceInfo, TableData } from "./defenceManagement";
+import { useWarnStore } from "@/stores/warnStore";
+import DefenceOperation from "./defenceDetailComponent/DefenceOperation.vue";
+
+// pinia定义告警中防区id
+const warnStore = useWarnStore();
 
 const props = defineProps<{
-  group: DefenceGroup[];
+  group: DefenceGroup;
 }>();
 const defenceGroup = toRefs(props).group;
 
@@ -190,9 +231,11 @@ const tableSource = reactive<
     delayTime: number; // 延时时间
     triggerType: number; // 触发类型
     linkDefenceId: string; // 关联防区id
-    linkCamera: string[]; // 联动相机
-    traceCamera: string[]; // 关联相机
+    linkCamera: number[]; // 联动相机
+    traceCamera: number[]; // 关联相机
     linkDevice: string[]; // 联动设备
+    isEfficacy: boolean; // 防区是否失效
+    defenceId: number; // 防区id
   }[]
 >([]);
 
@@ -245,8 +288,9 @@ const onSubmit = async () => {
     const defenceData = await getDefence(formData);
     const { data, status } = defenceData;
     if (status === 200) {
+      const successData = data as Defence;
       tableSource.splice(0, tableSource.length);
-      (data as Defence).results.forEach((item: Result) => {
+      successData.results.forEach((item: Result) => {
         tableSource.push({
           name: item.name,
           number: item.no,
@@ -259,9 +303,11 @@ const onSubmit = async () => {
           delayTime: item.delaytime,
           triggerType: item.touch_eventflag,
           linkDefenceId: item.linkarea,
-          linkCamera: item.linkcamera.map((item) => item.id.toString()),
-          traceCamera: item.tracecamera.map((item) => item.toString()),
+          linkCamera: item.linkcamera.map((item) => item.id),
+          traceCamera: item.tracecamera,
           linkDevice: item.devgroupobj.map((item) => item.name),
+          isEfficacy: item.is_failure,
+          defenceId: item.id,
         });
       });
       totalCount.value = (data as Defence).count;
@@ -286,24 +332,23 @@ interface TableColumn {
 }
 // 根据防区状态显示不同的背景色
 const tableRowClassName = ({ row }: { row: TableColumn; rowIndex: number }) => {
-  if (row.defenceState === "布防中") {
-    return "working-row";
-  } else if (row.defenceState === "已撤防") {
-    return "notWorking-row";
-  } else {
-    return "byPass-row";
+  switch (row.defenceState) {
+    case "布防中":
+      return "working-row";
+    case "已撤防":
+      return "notWorking-row";
+    case "已旁路":
+      return "byPass-row";
+    case "已失效":
+      return "loseEfficacy-row";
+    case "告警中":
+      return "warning-row";
+    default:
+      break;
   }
 };
 // 表格数据源
-const tableData = reactive<
-  {
-    defenceName: string;
-    defenceNumber: string;
-    defenceType: string;
-    defenceState: string;
-    defenceOperation: string[];
-  }[]
->([]);
+const tableData = reactive<TableData>([]);
 
 watchEffect(async () => {
   /* ------根据后端数据更新表格数据源------- */
@@ -331,26 +376,50 @@ watchEffect(async () => {
       case 6:
         type = "智能防区";
         break;
+      case 7:
+        type = "监控区";
+        break;
       default:
         break;
     }
+
+    // 判断是否为告警中防区
+    const isWarning = warnStore.warningList.some(
+      (value) => value === item.defenceId
+    );
+
     // 防区状态
     let state!: string;
     if (item.isByPass) {
       state = "已旁路";
-    } else if (item.isWorking) {
+    } else if (item.isWorking && !isWarning) {
       state = "布防中";
     } else if (!item.isWorking) {
       state = "已撤防";
+    } else if (item.isEfficacy) {
+      state = "已失效";
+    } else if (isWarning) {
+      state = "告警中";
     }
+
+    // 当防区状态为告警中，已失效；则没有防区操作按钮
+    let isOperation = true;
+    if (state === "告警中" || state === "已失效") {
+      isOperation = false;
+    }
+
     // 防区操作
     let operation!: string[];
     if (item.isByPass) {
       operation = ["撤防", "恢复", "warning", "primary"];
-    } else if (item.isWorking) {
+    } else if (item.isWorking && !isWarning) {
       operation = ["撤防", "旁路", "warning", "danger"];
     } else if (!item.isWorking) {
       operation = ["布防", "旁路", "success", "danger"];
+    } else if (item.isEfficacy) {
+      operation = [];
+    } else if (isWarning) {
+      operation = [];
     }
 
     tableData.push({
@@ -359,29 +428,41 @@ watchEffect(async () => {
       defenceType: type,
       defenceState: state,
       defenceOperation: operation,
+      hasOperation: isOperation,
+      defenceId: item.defenceId,
     });
   });
 });
-/* 分页功能 */
-const currentPage = ref(1);
-const pageSize = ref(10);
-const totalCount = ref(0);
 
-/* 点击表格操作事件 */
-const operation = (param: string) => {
+// 防区操作弹窗显隐
+const operationVisible = ref(false);
+// 防区操作类型
+const operationType = ref("");
+// 防区操作对应防区id
+const operationDefenceId = ref(-1);
+// 点击防区操作
+const operationFun = (param: string, id: number) => {
+  operationVisible.value = true;
+  operationDefenceId.value = id;
   switch (param) {
     case "布防":
+      operationType.value = "布防";
       break;
     case "撤防":
+      operationType.value = "撤防";
       break;
     case "旁路":
-      break;
-    case "恢复":
+      operationType.value = "旁路";
       break;
     default:
       break;
   }
 };
+
+/* 分页功能 */
+const currentPage = ref(1);
+const pageSize = ref(10);
+const totalCount = ref(0);
 
 const handleCurrentChange = () => {
   onSubmit();
@@ -536,14 +617,14 @@ const paramInfoClick = async (defenceId: string) => {
     // 关联相机名称数组
     const linkCameraNameArr = reactive<string[]>([]);
     linkCameraArr.forEach((item) => {
-      getLinkCameraName(item, linkCameraNameArr);
+      getLinkCameraName(item.toString(), linkCameraNameArr);
     });
     // 联动相机id数组
     const traceCameraArr = currentDefence.traceCamera;
     // 联动相机名称数组
     const traceCameraNameArr = reactive<string[]>([]);
     traceCameraArr.forEach((item) => {
-      getLinkCameraName(item, traceCameraNameArr);
+      getLinkCameraName(item.toString(), traceCameraNameArr);
     });
     paramsInfoData.linkCamera = linkCameraNameArr;
     paramsInfoData.traceCamera = traceCameraNameArr;

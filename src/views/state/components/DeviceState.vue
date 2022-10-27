@@ -13,23 +13,43 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, watchEffect, onMounted } from "vue";
+import { ref, reactive, watchEffect, onMounted, watch } from "vue";
 import EchartsComponent from "@/utils/EchartsComponent.vue";
 import { deviceValue } from "../server";
 import type { EChartsOption, LinearGradientObject } from "echarts";
-import type { BarValue } from "./device";
+import type { BarValue, BarSource } from "./device";
 
 // 设备状态，数据源类型
+const barSource = reactive<BarSource>({
+  radarinfo: {
+    total: 0,
+    offline: 0,
+  },
+  videocamer: {
+    total: 0,
+    offline: 0,
+  },
+});
+const deviceBar = ref<string>("");
+
+// 建立websocket链接
+deviceValue(barSource);
+
+// 柱状图数据
 const barValue = reactive<BarValue>({
   radarTotal: 0,
   radarOffline: 0,
   videoTotal: 0,
   videoOffline: 0,
 });
-const deviceBar = ref<string>("");
 
-// 建立websocket链接
-deviceValue(barValue);
+// 更新柱状图绑定数据
+watch(barSource, () => {
+  barValue.radarTotal = barSource.radarinfo.total;
+  barValue.radarOffline = barSource.radarinfo.offline;
+  barValue.videoTotal = barSource.videocamer.total;
+  barValue.videoOffline = barSource.videocamer.offline;
+});
 
 const deviceOption = reactive<EChartsOption>({});
 

@@ -4,7 +4,7 @@
  * @Author: yangsen
  * @Date: 2022-09-16 19:28:31
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-29 08:47:12
+ * @LastEditTime: 2022-10-25 11:48:19
  */
 import Map from "ol/Map";
 import View from "ol/View";
@@ -30,11 +30,98 @@ import LineString from "ol/geom/LineString";
 import Overlay from "ol/Overlay";
 import Stroke from "ol/style/Stroke";
 import Fill from "ol/style/Fill";
-import Circle from "ol/geom/Circle";
+import CircleStyle from "ol/style/Circle";
 
 let map;
 
+// 在线高德地图
+const mlayer = new TileLayer({
+  projection: "EPSG:4326",
+  source: new XYZ({
+    url: "http://webst0{1-4}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
+  }),
+  name: "在线高德影像地图",
+});
+
+//openlayer的图层
+const trgtLineSource = new olSource.Vector();
+const trgtLineLayer = new VectorLayer({
+  // 所有轨迹线放到一个组中
+  source: trgtLineSource,
+  style: [
+    new Style({
+      stroke: new Stroke({
+        color: "#ff0000",
+        width: 2,
+      }),
+    }),
+  ],
+});
+
+const trgtptSources = new olSource.Vector(); //所有目标放到一个组中
+// 目标轨迹的图层
+const trgtptLayer = new VectorLayer({
+  source: trgtptSources,
+});
+
+// 轨迹线的图标
+const trgtImgsrc = "/image/alarm_yuan.png";
+
+//离线图层:引用本地图片
+const offlineMapLayer = new TileLayer({
+  projection: "EPSG:4326",
+  // source: new XYZ({ url: "./tiles2/{z}/{x}/{y}.png" }),
+});
+
+// 引用服务上的地图
+const localSeverSource = new XYZ({
+  tileUrlFunction: function (coordinate) {
+    const z = coordinate[0] - 1;
+    const x = coordinate[1];
+    const y = coordinate[2];
+    return "http://192.168.0.100:8889/boao&x=" + x + "&y=" + y + "&z=" + z;
+  },
+  maxZoom: 18,
+  minZoom: 2,
+  projection: "EPSG:4326",
+});
+const localSeverMap = new TileLayer({
+  name: "本地服务器瓦片地图",
+  source: localSeverSource,
+});
+
+//比例尺
+const scaleLineControl = new ScaleLine({
+  //设置度量单位为米
+  units: "metric",
+  target: "scalebar",
+  className: "ol-scale-line",
+});
+
+//旋转控件
+const ratate = new Rotate({
+  autoHide: false,
+});
+
+//设置中心点:窗口中心定位到目标点
+export function setMapCenterPoint(point) {
+  map.getView().setCenter(transform(point, "EPSG:4326", "EPSG:3857"));
+}
+
+//设置层级：瓦片地图的层级
+function setMapZoom(zoom) {
+  map.getView().setZoom(zoom);
+}
+
+// 离线地图
+const offlineMap = new TileLayer({
+  name: "离线高德影像地图",
+  source: offlineMapLayer,
+});
+
+// 初始化map
 export const initMap = () => {
+  /* 涉及到dom挂载的都放到initMap中 */
   //初始化map
   map = new Map({
     controls: defaults({
@@ -44,50 +131,17 @@ export const initMap = () => {
     }),
     target: "map",
     view: new View({
-      center: olProj.fromLonLat([110.5909404, 19.158523]),
+      center: olProj.fromLonLat([116.613874, 40.028711]),
       zoom: 18,
     }),
-  });
-  // 在线高德地图
-  const mlayer = new TileLayer({
-    projection: "EPSG:4326",
-    source: new XYZ({
-      url: "http://webst0{1-4}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
-    }),
-    name: "在线高德影像地图",
   });
 
   // 加载图层
   map.addLayer(mlayer);
 
-  //离线图层:引用本地图片
-  const offlineMapLayer = new TileLayer({
-    projection: "EPSG:4326",
-    // source: new XYZ({ url: "./tiles2/{z}/{x}/{y}.png" }),
-  });
-  // 离线地图
-  const offlineMap = new TileLayer({
-    name: "离线高德影像地图",
-    source: offlineMapLayer,
-  });
   // map.addLayer(offlineMap);
 
-  // 引用服务上的地图
-  const localSeverSource = new XYZ({
-    tileUrlFunction: function (coordinate) {
-      const z = coordinate[0] - 1;
-      const x = coordinate[1];
-      const y = coordinate[2];
-      return "http://192.168.0.100:8889/boao&x=" + x + "&y=" + y + "&z=" + z;
-    },
-    maxZoom: 18,
-    minZoom: 2,
-    projection: "EPSG:4326",
-  });
-  const localSeverMap = new TileLayer({
-    name: "本地服务器瓦片地图",
-    source: localSeverSource,
-  });
+  // 瓦片地图
   map.addLayer(localSeverMap);
 
   //鼠标点的经纬度
@@ -95,7 +149,7 @@ export const initMap = () => {
     //样式类名称
     className: "mosuePosition",
     //投影坐标格式，显示小数点后边多少位
-    coordinateFormat: createStringXY(1),
+    coordinateFormat: createStringXY(8),
     //指定投影
     projection: "EPSG:4326",
     //目标容器
@@ -103,176 +157,13 @@ export const initMap = () => {
   });
   map.addControl(mousePositionControl);
 
-  //比例尺
-  const scaleLineControl = new ScaleLine({
-    //设置度量单位为米
-    units: "metric",
-    target: "scalebar",
-    className: "ol-scale-line",
-  });
   map.addControl(scaleLineControl);
 
-  //旋转控件
-  const ratate = new Rotate({
-    autoHide: false,
-  });
   //map.addControl(ratate);
 
-  //设置中心点:窗口中心定位到目标点
-  function setMapCenterPoint(point) {
-    map.getView().setCenter(transform(point, "EPSG:4326", "EPSG:3857"));
-  }
-
-  //设置层级：瓦片地图的层级
-  function setMapZoom(zoom) {
-    map.getView().setZoom(zoom);
-  }
-
-  //画线
-  function drawLine(id, geometryLine, color) {
-    const lineSources = new olSource.Vector();
-    lineSources.addFeature(
-      new Feature({
-        name: id,
-        geometry: geometryLine, //示例：new ol.geom.LineString([ol.proj.transform([100,40], 'EPSG:4326', 'EPSG:3857'),ol.proj.transform([110,40], 'EPSG:4326', 'EPSG:3857')])
-      })
-    );
-    const lineLayer = new VectorLayer({
-      name: id,
-      source: lineSources,
-      style: [
-        new Style({
-          stroke: new Stroke({
-            color: color, //示例 '#0014ff'
-            width: 2,
-          }),
-        }),
-      ],
-    });
-    map.addLayer(lineLayer);
-  }
-
-  //openlayer的图层
-  const trgtLineSource = new olSource.Vector(); //
-  const trgtLineLayer = new VectorLayer({
-    // 所有轨迹线放到一个组中
-    source: trgtLineSource,
-    style: [
-      new Style({
-        stroke: new Stroke({
-          color: "#ff0000",
-          width: 2,
-        }),
-      }),
-    ],
-  });
   map.addLayer(trgtLineLayer);
-  const trgtlineArray = [];
 
-  const trgtptSources = new olSource.Vector(); //所有目标放到一个组中
-  const trgtptLayer = new VectorLayer({
-    source: trgtptSources,
-  });
   map.addLayer(trgtptLayer);
-  const trgtImgsrc = "./image/alarm_yuan.png";
-
-  //画目标轨迹
-  function setTrgtData(id, text, geoData) {
-    //轨迹
-    let arraylineData = [];
-    const newNum1 = trgtlineArray.find((item, index) => {
-      return item.id == id;
-    });
-
-    if (newNum1 != undefined) {
-      arraylineData = newNum1.line;
-      arraylineData.push(transform(geoData, "EPSG:4326", "EPSG:3857"));
-    } else {
-      const arrayData = {};
-      arrayData.id = id;
-      arrayData.line = arraylineData;
-      arraylineData.push(transform(geoData, "EPSG:4326", "EPSG:3857"));
-      trgtlineArray.push(arrayData);
-    }
-    removeLineSourceFeature("trgtline" + id);
-    const trgtlineFeature = new Feature({
-      geometry: new LineString(arraylineData),
-    });
-    trgtlineFeature.setId("trgtline" + id);
-    trgtLineLayer.getSource().addFeature(trgtlineFeature);
-
-    //目标点
-    removePtSourceFeature("trgt" + id);
-    const trgtFeature = new Feature({
-      geometry: new Point(transform(geoData, "EPSG:4326", "EPSG:3857")),
-    });
-    trgtFeature.setId("trgt" + id);
-    trgtptLayer.getSource().addFeature(trgtFeature);
-    trgtFeature.setStyle(
-      new Style({
-        image: new Icon({
-          src: trgtImgsrc,
-          scale: 0.1,
-        }),
-        text: new Text({
-          text: text,
-          fill: new Fill({ color: "#efff55" }),
-          //stroke: new Stroke({color: 'black', width: 3}),
-          textBaseline: "bottom",
-          offsetY: 25,
-          scale: 1,
-        }),
-      })
-    );
-  }
-
-  //移除之前的点
-  function removePtSourceFeature(id) {
-    trgtptLayer
-      .getSource()
-      .getFeatures()
-      .forEach((feature) => {
-        if (id == feature.getId()) {
-          trgtptLayer.getSource().removeFeature(feature);
-        }
-      });
-  }
-
-  //移除之前的线
-  function removeLineSourceFeature(id) {
-    trgtLineLayer
-      .getSource()
-      .getFeatures()
-      .forEach((feature) => {
-        if (id == feature.getId()) {
-          trgtLineLayer.getSource().removeFeature(feature);
-        }
-      });
-  }
-
-  ///显示/隐藏 id layer的ID，visible 显示/隐藏:控制图层；要素点和防区是一个占一个图层；轨迹点和轨迹线是所有放到一个图层;结合资源列表使用
-  function setElementVisible(id, visible) {
-    const layers = map.getLayers();
-    for (let i = 0; i < layers.getLength(); i++) {
-      const name = layers.item(i).get("name");
-      if (name == id) {
-        layers.item(i).setVisible(visible);
-        const dd = layers.item(i).getVisible();
-      }
-    }
-  }
-
-  //获取要素的显隐状态
-  function getElementVisible(id) {
-    const layers = map.getLayers();
-    for (let i = 0; i < layers.getLength(); i++) {
-      const name = layers.item(i).get("name");
-      if (name == id) {
-        return layers.item(i).getVisible();
-      }
-    }
-    return false;
-  }
 
   let tip_message_flag = true; // 有无弹窗的标识
   //弹窗；实况视频哪些属性信息；openLayers地图中的弹窗
@@ -283,6 +174,7 @@ export const initMap = () => {
       duration: 250,
     },
   });
+  // 添加弹窗图层
   map.addOverlay(overlay);
   // 地图的点击事件
   map.on("click", function (e) {
@@ -321,37 +213,7 @@ export const initMap = () => {
     tip_message_flag = true;
   });
 
-  //告警动画
-  let radius = 10; // 圆环大小
-  function animation(event) {
-    for (let i = 0; i < 3; i++) {
-      if (radius >= 20) {
-        radius = 0;
-      }
-      const pointStyle = new Style({
-        image: new Circle({
-          radius: radius,
-          stroke: new Stroke({
-            color: "rgb(255,0,0)",
-            width: 4 - radius / 10,
-          }),
-        }),
-      });
-      const vectorContext = event.vectorContext;
-      vectorContext.setStyle(pointStyle);
-      // vectorContext.drawGeometry(new ol.geom.Point(ol.proj.transform([101,41], 'EPSG:4326', 'EPSG:3857')));
-      trgtptLayer
-        .getSource()
-        .getFeatures()
-        .forEach((element) => {
-          const geom = element.getGeometry();
-          vectorContext.drawGeometry(geom);
-        });
-      radius = radius + 0.1;
-      //触发map的postcompose事件
-      map.render();
-    }
-  }
+  return map;
 
   //测距 ranging
   /* 官网案例：https://openlayers.org/en/latest/examples/measure.html */
@@ -761,4 +623,181 @@ export function drawPoint(id, imgUrl, text, textColor, geoData) {
     })
   );
   poiVector.getSource().addFeature(ptFeature);
+}
+
+// 获取所有元素的显示隐藏状态
+export const getAllVisibleState = () => {
+  const visibleStateArr = [];
+  map.getLayers().forEach((item) => {
+    visibleStateArr.push({
+      name: item.get("name"),
+      visible: item.getVisible(),
+    });
+  });
+
+  return visibleStateArr;
+};
+
+// 显示/隐藏 id layer的ID，visible 显示/隐藏:控制图层；要素点和防区是一个占一个图层；轨迹点和轨迹线是所有放到一个图层;结合资源列表使用
+export function setElementVisible(id, visible) {
+  const layers = map.getLayers();
+
+  for (let i = 0; i < layers.getLength(); i++) {
+    const name = layers.item(i).get("name");
+
+    if (name == id) {
+      layers.item(i).setVisible(visible);
+      const dd = layers.item(i).getVisible();
+    }
+  }
+}
+//移除之前的线
+function removeLineSourceFeature(id) {
+  trgtLineLayer
+    .getSource()
+    .getFeatures()
+    .forEach((feature) => {
+      if (id == feature.getId()) {
+        trgtLineLayer.getSource().removeFeature(feature);
+      }
+    });
+}
+
+//移除之前的点
+function removePtSourceFeature(id) {
+  trgtptLayer
+    .getSource()
+    .getFeatures()
+    .forEach((feature) => {
+      if (id == feature.getId()) {
+        trgtptLayer.getSource().removeFeature(feature);
+      }
+    });
+}
+
+//画目标轨迹。id是feature要素的唯一标识，text包括告警id，速度，方向；geoData是告警的点坐标
+// 储存目标点
+const trgtlineArray = [];
+export function setTrgtData(id, text, geoData) {
+  // 要画轨迹线用到的点
+  let arraylineData = [];
+
+  // 查找要画的轨迹线之前没有画过；如果有，继续在之前的轨迹线后面画点
+  const newNum1 = trgtlineArray.find((item, index) => {
+    return item.id == id;
+  });
+
+  if (newNum1 != undefined) {
+    arraylineData = newNum1.line;
+    // transform方法；坐标数据，源数据使用的投影坐标系，目标投影坐标系；将坐标数据转换为目标坐标系下的坐标
+    arraylineData.push(transform(geoData, "EPSG:4326", "EPSG:3857"));
+  } else {
+    const arrayData = {};
+    arrayData.id = id;
+    arrayData.line = arraylineData;
+    arraylineData.push(transform(geoData, "EPSG:4326", "EPSG:3857"));
+    trgtlineArray.push(arrayData);
+  }
+
+  // 移除之前的线。之前的点已经储存在数组中，清除之前的线重新画
+  removeLineSourceFeature("trgtline" + id);
+
+  const trgtlineFeature = new Feature({
+    geometry: new LineString(arraylineData),
+  });
+  trgtlineFeature.setId("trgtline" + id);
+  trgtLineLayer.getSource().addFeature(trgtlineFeature);
+
+  //移除之前的点
+  removePtSourceFeature("trgt" + id);
+  const trgtFeature = new Feature({
+    geometry: new Point(transform(geoData, "EPSG:4326", "EPSG:3857")),
+  });
+  trgtFeature.setId("trgt" + id);
+  trgtptLayer.getSource().addFeature(trgtFeature);
+
+  trgtFeature.setStyle(
+    new Style({
+      image: new Icon({
+        src: trgtImgsrc,
+        scale: 0.1,
+      }),
+      text: new Text({
+        text: text,
+        fill: new Fill({ color: "#efff55" }),
+        //stroke: new Stroke({color: 'black', width: 3}),
+        textBaseline: "bottom",
+        offsetY: 25,
+        scale: 1,
+      }),
+    })
+  );
+}
+
+//画线
+function drawLine(id, geometryLine, color) {
+  const lineSources = new olSource.Vector();
+  lineSources.addFeature(
+    new Feature({
+      name: id,
+      geometry: geometryLine, //示例：new ol.geom.LineString([ol.proj.transform([100,40], 'EPSG:4326', 'EPSG:3857'),ol.proj.transform([110,40], 'EPSG:4326', 'EPSG:3857')])
+    })
+  );
+  const lineLayer = new VectorLayer({
+    name: id,
+    source: lineSources,
+    style: [
+      new Style({
+        stroke: new Stroke({
+          color: color, //示例 '#0014ff'
+          width: 2,
+        }),
+      }),
+    ],
+  });
+  map.addLayer(lineLayer);
+}
+
+//获取要素的显隐状态
+function getElementVisible(id) {
+  const layers = map.getLayers();
+  for (let i = 0; i < layers.getLength(); i++) {
+    const name = layers.item(i).get("name");
+    if (name == id) {
+      return layers.item(i).getVisible();
+    }
+  }
+  return false;
+}
+
+//告警动画
+let radius = 10; // 圆环大小
+function animation(event) {
+  for (let i = 0; i < 3; i++) {
+    if (radius >= 20) {
+      radius = 0;
+    }
+    const pointStyle = new Style({
+      image: new CircleStyle({
+        radius: radius,
+        stroke: new Stroke({
+          color: "rgb(255,0,0)",
+          width: 4 - radius / 10,
+        }),
+      }),
+    });
+    const vectorContext = event.vectorContext;
+    vectorContext.setStyle(pointStyle);
+    // vectorContext.drawGeometry(new ol.geom.Point(ol.proj.transform([101,41], 'EPSG:4326', 'EPSG:3857')));
+    trgtptLayer
+      .getSource()
+      .getFeatures()
+      .forEach((element) => {
+        const geom = element.getGeometry();
+        vectorContext.drawGeometry(geom);
+      });
+    radius = radius + 0.1;
+    //触发map的postcompose事件
+    map.render();
+  }
 }

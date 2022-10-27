@@ -9,11 +9,15 @@
       <span id="popup-closer" class="ol-popup-closer"></span>
       <div id="popup-content" class="popup-content"></div>
     </div>
+    <div class="fullScree" @click="cut()">
+      <el-icon v-if="!videoFullScreen"><BottomRight /></el-icon>
+      <el-icon v-if="videoFullScreen"><TopLeft /></el-icon>
+    </div>
   </div>
 </template>
 <script lang="ts" setup>
 import { ElMessage } from "element-plus";
-import { onMounted } from "vue";
+import { ref, onMounted } from "vue";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { initMap, drawAreaPolygon, drawPoint } from "./public/map.js";
@@ -23,6 +27,21 @@ import {
   type AlarmArea,
   type ElementProject,
 } from "./server";
+
+let map: any;
+
+// 子组件向父组件传值ts写法
+const emit = defineEmits<{ (e: "fullScreen", param: boolean): void }>();
+
+// 切换全屏视屏
+const videoFullScreen = ref(false);
+const cut = () => {
+  videoFullScreen.value = !videoFullScreen.value;
+  emit("fullScreen", videoFullScreen.value);
+  setTimeout(() => {
+    map.updateSize();
+  }, 1);
+};
 
 // 获取全部防区
 (async () => {
@@ -59,6 +78,7 @@ import {
     const { data, status } = elementData;
     if (status === 200 || status === 304) {
       const successData = data as ElementProject[];
+
       for (let i = 0; i < successData.length; i++) {
         const ele = successData[i];
         const eleText = ele.name;
@@ -70,7 +90,7 @@ import {
           const iconUrl = iconSymbol.Url;
           // eleColor =rgbaToHexColor([textSymbol.Fill.X*255,textSymbol.Fill.Y*255,textSymbol.Fill.Z*255,textSymbol.Fill.W*255]);
           const eleColor = "#ffffff";
-          drawPoint("element" + ele.id, iconUrl, eleText, eleColor, eleGeo);
+          drawPoint(ele.name + ele.id, iconUrl, eleText, eleColor, eleGeo);
         }
       }
     } else {
@@ -87,7 +107,20 @@ import {
 
 onMounted(() => {
   // 初始化地图
-  initMap();
+  map = initMap();
 });
 </script>
-<style lang="css" scoped></style>
+<style lang="css" scoped>
+.fullScree {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color: transparent;
+  font-size: 1.5rem;
+  z-index: 99999;
+}
+.fullScree:hover {
+  cursor: pointer;
+  color: red;
+}
+</style>

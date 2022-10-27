@@ -4,7 +4,7 @@
  * @Author: yangsen
  * @Date: 2022-09-01 13:40:51
  * @LastEditors: yangsen
- * @LastEditTime: 2022-09-29 10:13:34
+ * @LastEditTime: 2022-10-26 16:35:56
 -->
 <template>
   <el-row justify="center" style="height: 100%; align-content: center">
@@ -40,8 +40,12 @@ import { getPngUrl } from "@/utils/index";
 import { loginHttp, type LoginData } from "./server";
 import { useRouter } from "vue-router";
 import { ElMessage, type FormInstance, type FormRules } from "element-plus";
+import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
+
+const userStore = useUserStore();
+
 /* form表单的引用;获取到的是el-form组件实例 */
 const loginFormInstance = ref<FormInstance>();
 
@@ -92,6 +96,10 @@ const submitForm = () => {
           localStorage.setItem("refresh", refresh);
           // 登录成功，路由跳转
           router.push({ name: "home" });
+
+          // 将用户名,密码储存到全局状态
+          userStore.user.userName = loginForm.userName;
+          userStore.user.password = loginForm.password;
         } else if (status === 401) {
           ElMessage({
             type: "error",
@@ -143,6 +151,12 @@ const loginBgClassStyle = reactive({
   /deep/ .el-input__wrapper {
     height: 2.5rem;
     border-radius: 1.25rem;
+    background-color: white;
+    color: #262626;
+  }
+
+  /deep/ .el-input__inner {
+    color: #262626;
   }
 
   /deep/ .el-button {

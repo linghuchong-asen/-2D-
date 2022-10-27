@@ -1,0 +1,57 @@
+/* 历史告警处置popover */
+.handleWarn {
+  background-image: url("/image/pop2.png") !important;
+  background-size: 100% 100% !important;
+  background-color: transparent !important;
+}
+.handleWarn .el-popover__title {
+  color: #97d0f6;
+  font-size: 20px;
+  padding-top: 10px;
+}
+.handleWarn .el-form {
+  background-color: #18376e;
+  margin-top: 20px;
+}
+.handleWarn .el-form .el-form-item {
+  padding-left: 10%;
+}
+.handleWarn .el-form .el-form-item:first-of-type {
+  transform: translateY(10%);
+}
+/* .handleWarn .el-popper__arrow {
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  border-top: 10px solid rgba(55, 195, 253, 0.8);
+  transform: rotate(90deg) translate(600%, 50%) !important;
+} */
+.handleWarn .el-popper__arrow::before {
+  display: none;
+}
+.handleWarn .el-form .el-form-item__label {
+  color: #97d0f6;
+}
+.handleWarn .el-form .el-textarea__inner {
+  color: #97d0f6;
+  background-color: #133564;
+}
+
+/* 历史告警信息popover */
+.handleInfo {
+  height: 200px;
+  background-image: url("/image/pop2.png") !important;
+  background-size: 100% 100% !important;
+  background-color: transparent !important;
+}
+.handleInfo .el-popover__title {
+  color: #97d0f6;
+  font-size: 20px;
+  padding-top: 10px;
+}
+.handleInfo .info {
+  background-color: #18376e;
+  margin-top: 8%;
+  padding: 40px 40px;
+  color: #97d0f6;
+}

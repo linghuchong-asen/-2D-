@@ -1,27 +1,23 @@
 <template>
   <div class="warnBox">
-    <el-tabs v-model="activeName" @tab-click="handleClick" :stretch="true">
-      <el-tab-pane label="实时告警" name="first">
+    <el-tabs v-model="warnStore.tabActive" :stretch="true">
+      <el-tab-pane label="实时告警" name="realTimeWarn">
         <div class="realTimeInfo">
           <RealTimeWarn></RealTimeWarn>
         </div>
       </el-tab-pane>
-      <el-tab-pane label="历史告警" name="second">
+      <el-tab-pane label="历史告警" name="historyWarn">
         <HistoryWarn></HistoryWarn>
       </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from "vue";
-import type { TabsPaneContext } from "element-plus";
 import RealTimeWarn from "./components/realTime/RealTimeWarn.vue";
 import HistoryWarn from "./components/history/HistoryWarn.vue";
+import { useWarnStore } from "@/stores/warnStore";
 
-const activeName = ref("first");
-const handleClick = (tab: TabsPaneContext, event: Event) => {
-  console.log(tab, event);
-};
+const warnStore = useWarnStore();
 </script>
 <style scoped lang="less">
 .warnBox {

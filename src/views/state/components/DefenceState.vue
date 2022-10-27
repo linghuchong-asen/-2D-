@@ -30,7 +30,6 @@ const defencePie = ref<string>("");
 // echarts的option
 const pieOption = reactive<EChartsOption>({});
 
-// const pieData =
 // 防区状态饼状图
 const pieOptionFun = (): EChartsOption => {
   return {

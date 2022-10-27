@@ -3,7 +3,7 @@
  * @Author: yangsen
  * @Date: 2022-10-09 13:56:17
  * @LastEditors: yangsen
- * @LastEditTime: 2022-10-09 18:01:37
+ * @LastEditTime: 2022-10-20 09:36:15
  */
 
 export class SocketServer {
@@ -24,7 +24,7 @@ export class SocketServer {
     this.connectRetryCount = 0;
 
     // 后台地址
-    this.url = "ws://192.168.0.100:5000";
+    this.url = "ws://192.168.0.100:8099";
   }
   // 获取token
   private token = localStorage.getItem("Authorization");

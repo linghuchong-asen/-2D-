@@ -1,3 +1,12 @@
+@import "./css/deviceLog.css";
+@import "./css/operationLog.css";
+@import "./css/systemConfig.css";
+@import "./css/layerManage.css";
+@import "./css/warnQuery.css";
+@import "./css//about.css";
+@import "./css/defenceManage.css";
+@import "./css/relieve.css";
+@import "./css/historyWarn.css";
 * {
   padding: 0;
   margin: 0;
@@ -38,8 +47,14 @@ li {
   font-size: 0.875rem;
 }
 .defence .el-dialog {
-  background-color: rgba(9, 34, 68, 0.9);
-  color: #38c3fd;
+  background-image: url("/image/mapbg_layer.png");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  box-shadow: none;
+  color: #97d0f6;
+  min-height: 650px;
 }
 .defence .el-dialog .el-dialog__headerbtn {
   display: none;
@@ -66,6 +81,12 @@ li {
 }
 .exhibition .el-table .byPass-row {
   background-color: #fab6b6;
+}
+.exhibition .el-table .loseEfficacy-row {
+  background-color: #c8c9cc;
+}
+.exhibition .el-table .warning-row {
+  background-color: #ff4757;
 }
 .exhibition .btn-prev {
   background-color: #18376e !important;
@@ -132,6 +153,32 @@ li {
   border: 1px solid #2280ae;
   padding-left: 5px;
   border-radius: 5px;
+}
+
+.byPass .el-form-item__label {
+  color: #38c3fd;
+}
+.byPass .el-input__wrapper {
+  background-color: transparent;
+}
+.byPassDialog .el-dialog__title {
+  color: #38c3fd !important;
+}
+.byPassDialog .el-dialog {
+  background-color: #092244 !important;
+  background-image: none;
+  min-height: 300px;
+}
+.byPassDialog .el-dialog__headerbtn {
+  display: block !important;
+}
+.byPassDialog .el-dialog__close {
+  color: #38c3fd !important;
+}
+/* 历史告警查询 */
+.historyWarn .nameList {
+  position: absolute;
+  right: -1.3125rem;
 }
 
 /* ------------------视屏墙------------------------- */

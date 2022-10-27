@@ -184,7 +184,7 @@ export interface ViewpointGeometry {
   type: string;
 }
 
-// 资源列表
+// 获取要素
 export const elementProject = () =>
   http<ElementProject[] | { detail: string }>(
     "/API/V0.1/JMSceneConfigService/ElementProject/",

@@ -1,0 +1,49 @@
+.layerMange .el-dialog__close {
+  display: none;
+}
+.layerMange .el-dialog {
+  min-height: 500px;
+  background-image: url("/image/mapbg_proprety_layer.png");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  box-shadow: none;
+  color: #97d0f6;
+}
+.layerMange .el-dialog__body {
+  padding-bottom: 10px;
+}
+.layerMange .el-tabs {
+  min-height: 400px;
+
+  background-color: #18376e;
+  border: none;
+}
+.layerMange .el-tabs__item {
+  background-color: #475c83;
+  font-size: 18px;
+}
+.layerMange .el-tabs__item.is-active {
+  background-color: #475c83 !important;
+  border: none !important;
+}
+.layerMange .el-tabs__content {
+  background-color: #18376e;
+}
+.layerMange .el-tree {
+  background-color: #18376e;
+}
+.layerMange .el-checkbox__inner {
+  background-color: #425f81;
+}
+.layerMange .el-tree-node__label {
+  color: #97d0f6;
+}
+
+.layerMange .el-tree-node__content:hover {
+  background-color: #3a5ead !important;
+}
+.layerMange .el-tree-node.is-expanded .el-tree-node__content {
+  background-color: #18376e !important;
+}

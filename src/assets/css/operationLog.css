@@ -1,0 +1,70 @@
+.operationLog .el-dialog {
+  background-image: url("/image/mapbg_layer.png");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  box-shadow: none;
+  color: #97d0f6;
+}
+.operationLog .el-col-8 {
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background-color: #18376e;
+}
+.operationLog .el-dialog__body {
+  height: 580px;
+  padding: 0;
+  padding-bottom: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.operationLog .el-tabs__item {
+  color: #8c8c8c;
+  font-size: 18px;
+}
+.operationLog .el-tabs__item.is-active {
+  color: #97d0f6;
+}
+.operationLog .el-form-item__label {
+  color: #97d0f6;
+}
+/* 查询按钮 */
+.operationLog .el-button--primary {
+  margin-top: 50px;
+  margin-left: 50px;
+  width: 160px;
+}
+
+.operationLog .middle {
+  margin: 0 -12px;
+  background-color: transparent !important;
+}
+/* 右侧列表 */
+.operationLog .list {
+  height: 570px;
+  position: relative;
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background-color: #18376e !important;
+}
+.operationLog .el-descriptions__body {
+  margin-bottom: 10px;
+  border-radius: 5px;
+  padding-left: 5px;
+  padding-top: 5px;
+  background-color: #1e4f90;
+}
+.operationLog .el-descriptions__label {
+  color: #97d0f6;
+}
+.operationLog .el-descriptions__content {
+  color: #97d0f6;
+}
+
+.operationLog .el-dialog__close {
+  display: none;
+}

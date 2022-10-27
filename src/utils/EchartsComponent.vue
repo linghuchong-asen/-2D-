@@ -1,9 +1,11 @@
 <template>
-  <div :id="id" style="width: 100%; height: 100%"></div>
+  <!-- FIXME:问题：页面自适应布局，当有tooltip时，会出现滚动条 -->
+  <!-- FIXME:解决：添加上overflow:hidden属性 -->
+  <div :id="id" style="width: 100%; height: 90%; overflow: hidden"></div>
 </template>
 
 <script setup lang="ts">
-import { toRefs, onUnmounted, onMounted, onUpdated } from "vue";
+import { toRefs, onUnmounted, onMounted } from "vue";
 import * as echarts from "echarts";
 import type { EChartsOption, ECharts } from "echarts";
 // 接收父组件传值

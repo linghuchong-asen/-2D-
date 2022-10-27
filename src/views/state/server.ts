@@ -4,10 +4,10 @@
  * @Author: yangsen
  * @Date: 2022-09-15 10:33:48
  * @LastEditors: yangsen
- * @LastEditTime: 2022-10-12 09:37:48
+ * @LastEditTime: 2022-10-19 15:46:38
  */
 
-import type { BarValue } from "./components/device";
+import type { BarSource } from "./components/device";
 import { http } from "@/utils/http";
 import { SocketServer } from "@/utils/websocket";
 
@@ -21,30 +21,12 @@ export interface DefenceValue {
   working_num: number;
 }
 export const defenceValue = (param: DefenceValue): void => {
-  const cloneObject = {};
-  new SocketServer().connect(cloneObject, "/ws/area/report/");
-  Object.assign(param, cloneObject);
+  new SocketServer().connect(param, "/ws/area/report/");
 };
 
 // 设备状态
-export const deviceValue = (param: BarValue) => {
-  const cloneObject = {
-    radarinfo: {
-      total: 0,
-      offline: 0,
-    },
-    videocamer: {
-      total: 0,
-      offline: 0,
-    },
-  };
-  new SocketServer().connect(cloneObject, "/count/device/all/");
-  Object.assign(param, {
-    radarTotal: cloneObject.radarinfo.total,
-    radarOffline: cloneObject.radarinfo.offline,
-    videoTotal: cloneObject.videocamer.total,
-    videoOffline: cloneObject.videocamer.offline,
-  });
+export const deviceValue = (param: BarSource) => {
+  new SocketServer().connect(param, "/count/device/all/");
 };
 
 // 获取所有防区，用于判断配置服务是否正常
