@@ -3,7 +3,7 @@
  * @Author: yangsen
  * @Date: 2022-09-08 17:14:36
  * @LastEditors: yangsen
- * @LastEditTime: 2022-10-27 21:02:37
+ * @LastEditTime: 2022-11-01 20:08:17
 -->
 <template>
   <div>
@@ -243,10 +243,11 @@ const getDefenceFun = (
         const historyStartTime = getAssignAfter(startTime, -30);
         const historyEndTime = getAssignAfter(endTime, 30);
 
-        cameraArr.forEach((item) => {
+        cameraArr.forEach((item, index) => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           videoStore.video.playHisSelect(
+            index,
             item,
             historyStartTime,
             historyEndTime

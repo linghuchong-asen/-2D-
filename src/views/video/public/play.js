@@ -5,7 +5,6 @@ const closeSvg = getSvgUrl("close");
 const loaderSvg = getSvgUrl("loader");
 
 export const Server = {
-  ip: "http://192.168.0.100:8099",
   get_webrtc: function (id, data) {
     return http("/API/V0.1/Onvif/GetWebrtc/" + id + "/", {
       method: "post",
@@ -192,11 +191,9 @@ export class PlayerWallProcessor {
     }
   }
 
-  // 播放历史视频
-  playHisSelect(stream_id, start_time, end_time) {
-    debugger;
+  // 播放历史视频   参数：播放窗格index 相机id 开始时间 结束时间
+  playHisSelect(index, stream_id, start_time, end_time) {
     const _this = this;
-    const index = _this.selectindex;
     // 指定窗体播放历史视频
     _this.player[index].className = _this.player[index].className.replace(
       " empty",
@@ -315,21 +312,17 @@ export class WebRTCPlayer {
         try {
           this.hisstream_id = data.stream_id;
           if (Hls.isSupported()) {
-            debugger;
             _this.hls = new Hls({
               manifestLoadingTimeOut: 60000,
             });
             _this.hls.loadSource(data.url);
-            debugger;
             _this.hls.attachMedia(_this.video);
-            debugger;
           } else if (_this.video.canPlayType("application/vnd.apple.mpegurl")) {
             _this.video.src = data.url;
             _this.video.load();
           }
         } catch (e) {
           console.log(e);
-          debugger;
           alert("视频加载失败");
           _this.onClosePlay();
           _this.destroy();

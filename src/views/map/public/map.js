@@ -4,7 +4,7 @@
  * @Author: yangsen
  * @Date: 2022-09-16 19:28:31
  * @LastEditors: yangsen
- * @LastEditTime: 2022-10-25 11:48:19
+ * @LastEditTime: 2022-11-01 17:25:26
  */
 import Map from "ol/Map";
 import View from "ol/View";
@@ -85,6 +85,7 @@ const localSeverSource = new XYZ({
   minZoom: 2,
   projection: "EPSG:4326",
 });
+
 const localSeverMap = new TileLayer({
   name: "本地服务器瓦片地图",
   source: localSeverSource,

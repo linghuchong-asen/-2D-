@@ -78,7 +78,6 @@ const cut = () => {
     const { data, status } = elementData;
     if (status === 200 || status === 304) {
       const successData = data as ElementProject[];
-
       for (let i = 0; i < successData.length; i++) {
         const ele = successData[i];
         const eleText = ele.name;
